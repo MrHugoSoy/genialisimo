@@ -8,6 +8,7 @@ export interface Profile {
   avatar_emoji: string
   bio: string | null
   points: number
+  banner: string | null
   created_at: string
 }
 
