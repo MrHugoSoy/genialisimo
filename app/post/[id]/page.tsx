@@ -8,11 +8,10 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
   const { data: post } = await supabase
     .from('posts')
-    .select('*, profiles(id, username, avatar_emoji)')
+    .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
     .eq('id', id)
     .single()
 
   if (!post) notFound()
-
   return <PostDetailClient post={post} />
 }
