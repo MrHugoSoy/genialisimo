@@ -16,15 +16,12 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
   const fetchPosts = useCallback(async (reset = false) => {
     setLoading(true)
     const currentPage = reset ? 0 : page
-
     let query = supabase
       .from('posts')
       .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1)
-
     if (category) query = query.eq('category', category)
     if (tag) query = query.contains('tags', [tag])
-
     if (feedType === 'hot' || feedType === 'top') {
       query = query.order('votes', { ascending: false })
     } else if (feedType === 'trending') {
@@ -32,7 +29,6 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     } else {
       query = query.order('created_at', { ascending: false })
     }
-
     const { data, error } = await query
     if (!error && data) {
       setPosts(prev => reset ? data : [...prev, ...data])
@@ -64,7 +60,6 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     const supabaseClient = createClient()
     const { data: { user } } = await supabaseClient.auth.getUser()
     if (!user) return { data: null, error: 'No autenticado' }
-
     let image_url: string | null = null
     if (imageFile) {
       const path = `${user.id}/${Date.now()}-${imageFile.name}`
@@ -77,20 +72,29 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
         image_url = supabaseClient.storage.from('posts').getPublicUrl(path).data.publicUrl
       }
     }
-
     const { data, error } = await supabaseClient
       .from('posts')
       .insert({ title, category, image_url, user_id: user.id, tags })
       .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
       .single()
-
     if (error) {
       console.error('Post insert error:', JSON.stringify(error, null, 2))
       return { data: null, error: error.message }
     }
-
     if (data) setPosts(prev => [data, ...prev])
     return { data, error: null }
+  }
+
+  async function deletePost(postId: number) {
+    const supabaseClient = createClient()
+    const { error } = await supabaseClient
+      .from('posts')
+      .delete()
+      .eq('id', postId)
+    if (!error) {
+      setPosts(prev => prev.filter(p => p.id !== postId))
+    }
+    return { error: error ? error.message : null }
   }
 
   return {
@@ -100,6 +104,7 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     loadMore: () => fetchPosts(false),
     vote,
     createPost,
+    deletePost,
     refresh: () => fetchPosts(true),
   }
 }

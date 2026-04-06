@@ -1,19 +1,21 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { MessageCircle, Share2, ChevronUp, ChevronDown, Flame, Sparkles, Tag } from 'lucide-react'
+import { MessageCircle, Share2, ChevronUp, ChevronDown, Flame, Sparkles, Tag, Trash2, MoreHorizontal } from 'lucide-react'
 import { Post, CATEGORIES } from '@/types'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { CommentSection } from './CommentSection'
 import { useToast } from '@/components/ui/Toaster'
 import { createClient } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { usePosts } from '@/hooks/usePosts'
 import clsx from 'clsx'
 
 interface PostCardProps {
   post: Post
   onVote: (id: number, value: 1 | -1) => void
   onAuthRequired: () => void
+  onDelete?: (id: number) => void
   delay?: number
 }
 
@@ -29,19 +31,23 @@ function timeAgo(date: string) {
   return `${Math.floor(diff / 86400)}d`
 }
 
-export function PostCard({ post, onVote, onAuthRequired, delay = 0 }: PostCardProps) {
+export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: PostCardProps) {
   const { user } = useAuthContext()
   const { toast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { deletePost } = usePosts()
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [commentCount, setCommentCount] = useState(post.comment_count)
   const [votes, setVotes] = useState(post.votes)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleted, setDeleted] = useState(false)
   const cat = CATEGORIES[post.category as keyof typeof CATEGORIES]
   const isHot = votes > 5000
   const isFresh = (Date.now() - new Date(post.created_at).getTime()) < 3600_000
+  const isOwner = user?.id === post.user_id
 
-  // Realtime subscription
   useEffect(() => {
     const supabase = createClient()
     const channel = supabase
@@ -66,7 +72,7 @@ export function PostCard({ post, onVote, onAuthRequired, delay = 0 }: PostCardPr
   }
 
   function handleShare() {
-    navigator.clipboard?.writeText(`${window.location.origin}/#post-${post.id}`)
+    navigator.clipboard?.writeText(`${window.location.origin}/post/${post.id}`)
       .then(() => toast('📋', 'Link copiado'))
       .catch(() => toast('📋', 'Link copiado'))
   }
@@ -76,6 +82,22 @@ export function PostCard({ post, onVote, onAuthRequired, delay = 0 }: PostCardPr
     params.set('tag', tag)
     router.push(`?${params.toString()}`)
   }
+
+  async function handleDelete() {
+    if (!confirm('¿Borrar este post? No se puede deshacer.')) return
+    setDeleting(true)
+    const { error } = await deletePost(post.id)
+    if (error) {
+      toast('❌', 'Error al borrar')
+      setDeleting(false)
+      return
+    }
+    setDeleted(true)
+    toast('🗑️', 'Post borrado')
+    onDelete?.(post.id)
+  }
+
+  if (deleted) return null
 
   return (
     <article
@@ -99,6 +121,29 @@ export function PostCard({ post, onVote, onAuthRequired, delay = 0 }: PostCardPr
           >
             {cat.emoji} {cat.label}
           </span>
+        )}
+        {/* Menú de opciones (solo dueño) */}
+        {isOwner && (
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-surface2 transition-colors"
+            >
+              <MoreHorizontal size={16} />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-xl p-1 shadow-2xl z-10 w-36 animate-popIn">
+                <button
+                  onClick={() => { setMenuOpen(false); handleDelete() }}
+                  disabled={deleting}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface2 transition-colors"
+                >
+                  <Trash2 size={14} strokeWidth={2} />
+                  {deleting ? 'Borrando...' : 'Borrar post'}
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
