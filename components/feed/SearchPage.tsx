@@ -16,15 +16,15 @@ export function SearchPage() {
   const [authOpen, setAuthOpen] = useState(false)
   const { vote } = usePosts()
   const inputRef = useRef<HTMLInputElement>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => { inputRef.current?.focus() }, [])
 
   useEffect(() => {
-    clearTimeout(debounceRef.current)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
     if (!query.trim()) { setResults([]); setSearched(false); return }
     debounceRef.current = setTimeout(() => search(query), 400)
-    return () => clearTimeout(debounceRef.current)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [query])
 
   async function search(q: string) {
