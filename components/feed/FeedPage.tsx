@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { usePosts } from '@/hooks/usePosts'
 import { PostCard } from './PostCard'
@@ -25,6 +25,24 @@ export function FeedPage({ feedType }: { feedType: FeedType }) {
   const tag = searchParams.get('tag') ?? undefined
   const { posts, loading, hasMore, loadMore, vote } = usePosts(feedType, category, tag)
   const [authOpen, setAuthOpen] = useState(false)
+  const loaderRef = useRef<HTMLDivElement>(null)
+
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [entry] = entries
+    if (entry.isIntersecting && hasMore && !loading) {
+      loadMore()
+    }
+  }, [hasMore, loading, loadMore])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: '200px',
+      threshold: 0,
+    })
+    if (loaderRef.current) observer.observe(loaderRef.current)
+    return () => observer.disconnect()
+  }, [handleObserver])
 
   return (
     <>
@@ -68,22 +86,17 @@ export function FeedPage({ feedType }: { feedType: FeedType }) {
                 delay={Math.min(i, 5) * 50}
               />
             ))}
-
-            {loading && posts.length === 0 && (
-              [...Array(4)].map((_, i) => <SkeletonCard key={i} />)
+            {loading && (
+              [...Array(posts.length === 0 ? 4 : 2)].map((_, i) => <SkeletonCard key={i} />)
             )}
           </div>
 
-          {/* Load more */}
-          {!loading && hasMore && (
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={loadMore}
-                className="px-8 py-3 bg-surface border border-border hover:border-accent text-muted hover:text-white rounded-xl font-bold text-sm transition-all"
-              >
-                Cargar más 👇
-              </button>
-            </div>
+          {/* Infinite scroll trigger */}
+          <div ref={loaderRef} className="h-10 mt-4" />
+
+          {/* Fin del feed */}
+          {!loading && !hasMore && posts.length > 0 && (
+            <p className="text-center text-muted text-sm font-mono py-8">— fin del feed —</p>
           )}
 
           {!loading && posts.length === 0 && (
