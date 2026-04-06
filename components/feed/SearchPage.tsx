@@ -16,7 +16,7 @@ export function SearchPage() {
   const [authOpen, setAuthOpen] = useState(false)
   const { vote } = usePosts()
   const inputRef = useRef<HTMLInputElement>(null)
-  const debounceRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => { inputRef.current?.focus() }, [])
 
