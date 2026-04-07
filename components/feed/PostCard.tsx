@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { MessageCircle, Share2, ChevronUp, ChevronDown, Flame, Sparkles, Tag, Trash2, MoreHorizontal, Flag } from 'lucide-react'
+import { MessageCircle, Share2, ChevronUp, ChevronDown, Flame, Sparkles, Tag, Trash2, MoreHorizontal, Flag, Copy, X } from 'lucide-react'
 import { Post, CATEGORIES } from '@/types'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { CommentSection } from './CommentSection'
@@ -50,6 +50,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
   const [commentCount, setCommentCount] = useState(post.comment_count)
   const [votes, setVotes] = useState(post.votes)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleted, setDeleted] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
@@ -58,6 +59,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
   const isHot = votes > 5000
   const isFresh = (Date.now() - new Date(post.created_at).getTime()) < 3600_000
   const isOwner = user?.id === post.user_id
+  const postUrl = `https://genialisimo.com/post/${post.id}`
 
   useEffect(() => {
     const supabase = createClient()
@@ -82,10 +84,26 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
     if (v === 1 && post.user_vote !== 1) toast('🔥', '+1 punto')
   }
 
-  function handleShare() {
-    navigator.clipboard?.writeText(`${window.location.origin}/post/${post.id}`)
+  function handleCopyLink() {
+    navigator.clipboard?.writeText(postUrl)
       .then(() => toast('📋', 'Link copiado'))
       .catch(() => toast('📋', 'Link copiado'))
+    setShareOpen(false)
+  }
+
+  function handleShareWhatsApp() {
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${post.title} ${postUrl}`)}`, '_blank')
+    setShareOpen(false)
+  }
+
+  function handleShareX() {
+    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(postUrl)}`, '_blank')
+    setShareOpen(false)
+  }
+
+  function handleShareFacebook() {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, '_blank')
+    setShareOpen(false)
   }
 
   function handleTag(tag: string) {
@@ -304,13 +322,52 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
           </span>
         </button>
 
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold text-muted hover:text-white hover:bg-surface2 transition-all ml-auto"
-        >
-          <Share2 size={18} strokeWidth={2} />
-          <span className="hidden sm:inline">Compartir</span>
-        </button>
+        {/* Compartir con dropdown */}
+        <div className="relative ml-auto">
+          <button
+            onClick={() => setShareOpen(o => !o)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold text-muted hover:text-white hover:bg-surface2 transition-all"
+          >
+            <Share2 size={18} strokeWidth={2} />
+            <span className="hidden sm:inline">Compartir</span>
+          </button>
+
+          {shareOpen && (
+            <div className="absolute right-0 bottom-full mb-2 bg-surface border border-border rounded-xl p-2 shadow-2xl z-20 w-48 animate-popIn">
+              <div className="flex items-center justify-between px-2 pb-2 border-b border-border mb-1">
+                <p className="text-[10px] font-mono text-muted uppercase tracking-widest">Compartir en</p>
+                <button onClick={() => setShareOpen(false)} className="text-muted hover:text-white">
+                  <X size={12} />
+                </button>
+              </div>
+              <button
+                onClick={handleShareWhatsApp}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
+              >
+                <span className="text-base">💬</span> WhatsApp
+              </button>
+              <button
+                onClick={handleShareX}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
+              >
+                <span className="text-base font-bold text-white">𝕏</span> Twitter / X
+              </button>
+              <button
+                onClick={handleShareFacebook}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
+              >
+                <span className="text-base">👤</span> Facebook
+              </button>
+              <div className="h-px bg-border my-1" />
+              <button
+                onClick={handleCopyLink}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
+              >
+                <Copy size={14} strokeWidth={2} /> Copiar link
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {commentsOpen && (
