@@ -39,6 +39,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Topbar />
             <main>{children}</main>
             <MobileNav />
+            <footer className="border-t border-border py-6 px-4 hidden md:block">
+              <div className="max-w-[1100px] mx-auto flex flex-wrap items-center justify-between gap-4">
+                <p className="text-[11px] font-mono text-muted">
+                  © 2026 Genialisimo — El feed de memes en español
+                </p>
+                <div className="flex gap-4">
+                  <a href="/privacidad" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
+                    Privacidad
+                  </a>
+                  <a href="/terminos" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
+                    Términos
+                  </a>
+                </div>
+              </div>
+            </footer>
           </Toaster>
         </AuthProvider>
       </body>
