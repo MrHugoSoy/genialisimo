@@ -6,9 +6,26 @@ import { Toaster } from '@/components/ui/Toaster'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 
 export const metadata: Metadata = {
-  title: 'Genialisimo 🔥',
-  description: 'El feed de memes y contenido viral en español',
-  icons: { icon: '/favicon.ico' },
+  title: 'Genialisimo 🔥 — Memes y contenido viral en español',
+  description: 'El mejor feed de memes, fails y contenido viral en español. Vota, comenta y comparte lo mejor de internet.',
+  keywords: 'memes, viral, fails, humor, español, latino, gifs',
+  openGraph: {
+    title: 'Genialisimo 🔥',
+    description: 'Memes y contenido viral en español',
+    url: 'https://genialisimo.com',
+    siteName: 'Genialisimo',
+    images: [{ url: 'https://genialisimo.com/og-image.png', width: 1200, height: 630 }],
+    locale: 'es_MX',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Genialisimo 🔥',
+    description: 'Memes y contenido viral en español',
+    images: ['https://genialisimo.com/og-image.png'],
+  },
+  robots: { index: true, follow: true },
+  metadataBase: new URL('https://genialisimo.com'),
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

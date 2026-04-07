@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { MessageCircle, Share2, ChevronUp, ChevronDown, Flame, Sparkles, Tag, Trash2, MoreHorizontal } from 'lucide-react'
+import { MessageCircle, Share2, ChevronUp, ChevronDown, Flame, Sparkles, Tag, Trash2, MoreHorizontal, Flag } from 'lucide-react'
 import { Post, CATEGORIES } from '@/types'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { CommentSection } from './CommentSection'
@@ -31,6 +31,15 @@ function timeAgo(date: string) {
   return `${Math.floor(diff / 86400)}d`
 }
 
+const REPORT_REASONS = [
+  'Contenido inapropiado',
+  'Spam',
+  'Violencia o gore',
+  'Desinformación',
+  'Acoso',
+  'Otro',
+]
+
 export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: PostCardProps) {
   const { user } = useAuthContext()
   const { toast } = useToast()
@@ -43,6 +52,8 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
   const [menuOpen, setMenuOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleted, setDeleted] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reporting, setReporting] = useState(false)
   const cat = CATEGORIES[post.category as keyof typeof CATEGORIES]
   const isHot = votes > 5000
   const isFresh = (Date.now() - new Date(post.created_at).getTime()) < 3600_000
@@ -97,6 +108,25 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
     onDelete?.(post.id)
   }
 
+  async function handleReport(reason: string) {
+    if (!user) { onAuthRequired(); return }
+    setReporting(true)
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('reports')
+      .insert({ post_id: post.id, user_id: user.id, reason })
+    setReporting(false)
+    setReportOpen(false)
+    setMenuOpen(false)
+    if (error?.code === '23505') {
+      toast('ℹ️', 'Ya reportaste este post')
+    } else if (error) {
+      toast('❌', 'Error al reportar')
+    } else {
+      toast('🚩', 'Post reportado, gracias')
+    }
+  }
+
   if (deleted) return null
 
   return (
@@ -112,11 +142,11 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
         </div>
         <div className="flex-1 min-w-0">
           <p
-  className="text-sm font-bold truncate hover:text-accent cursor-pointer transition-colors"
-  onClick={() => router.push(`/user/${post.profiles?.username}`)}
->
-  {post.profiles?.username ?? 'anon'}
-</p>
+            className="text-sm font-bold truncate hover:text-accent cursor-pointer transition-colors"
+            onClick={() => router.push(`/user/${post.profiles?.username}`)}
+          >
+            {post.profiles?.username ?? 'anon'}
+          </p>
           <p className="text-[11px] font-mono text-muted">{timeAgo(post.created_at)}</p>
         </div>
         {cat && (
@@ -127,17 +157,19 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
             {cat.emoji} {cat.label}
           </span>
         )}
-        {/* Menú de opciones (solo dueño) */}
-        {isOwner && (
-          <div className="relative">
-            <button
-              onClick={() => setMenuOpen(o => !o)}
-              className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-surface2 transition-colors"
-            >
-              <MoreHorizontal size={16} />
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-xl p-1 shadow-2xl z-10 w-36 animate-popIn">
+
+        {/* Menú opciones */}
+        <div className="relative">
+          <button
+            onClick={() => { setMenuOpen(o => !o); setReportOpen(false) }}
+            className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-surface2 transition-colors"
+          >
+            <MoreHorizontal size={16} />
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-xl p-1 shadow-2xl z-20 w-44 animate-popIn">
+              {isOwner && (
                 <button
                   onClick={() => { setMenuOpen(false); handleDelete() }}
                   disabled={deleting}
@@ -146,10 +178,43 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
                   <Trash2 size={14} strokeWidth={2} />
                   {deleting ? 'Borrando...' : 'Borrar post'}
                 </button>
+              )}
+              {!isOwner && (
+                <button
+                  onClick={() => { setReportOpen(true); setMenuOpen(false) }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted hover:text-orange-400 hover:bg-surface2 transition-colors"
+                >
+                  <Flag size={14} strokeWidth={2} /> Reportar
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Modal de reporte */}
+          {reportOpen && (
+            <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-xl p-3 shadow-2xl z-20 w-52 animate-popIn">
+              <p className="text-xs font-bold text-muted uppercase tracking-widest mb-2 font-mono">¿Por qué reportas?</p>
+              <div className="space-y-0.5">
+                {REPORT_REASONS.map(reason => (
+                  <button
+                    key={reason}
+                    onClick={() => handleReport(reason)}
+                    disabled={reporting}
+                    className="w-full text-left px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
+                  >
+                    {reason}
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
-        )}
+              <button
+                onClick={() => setReportOpen(false)}
+                className="w-full mt-2 text-[11px] text-muted hover:text-white transition-colors font-mono"
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Title */}
