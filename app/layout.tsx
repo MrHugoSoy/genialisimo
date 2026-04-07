@@ -29,9 +29,31 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://genialisimo.com'),
 }
 
+const schemaOrg = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Genialisimo",
+  "url": "https://genialisimo.com",
+  "description": "El mejor feed de memes y contenido viral en español",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://genialisimo.com/search?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
+        />
+      </head>
       <body className="pb-16 md:pb-0">
         <AuthProvider>
           <Toaster>

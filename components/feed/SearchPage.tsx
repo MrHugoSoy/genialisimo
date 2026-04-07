@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { Post } from '@/types'
 import { PostCard } from './PostCard'
@@ -9,7 +10,10 @@ import { Search, X } from 'lucide-react'
 import { usePosts } from '@/hooks/usePosts'
 
 export function SearchPage() {
-  const [query, setQuery] = useState('')
+  const searchParams = useSearchParams()
+  const initialQuery = searchParams.get('q') ?? ''
+
+  const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState<Post[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
@@ -18,8 +22,13 @@ export function SearchPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  useEffect(() => { inputRef.current?.focus() }, [])
+  // Buscar automáticamente si viene ?q= en la URL
+  useEffect(() => {
+    inputRef.current?.focus()
+    if (initialQuery) search(initialQuery)
+  }, [])
 
+  // Buscar mientras escribe con debounce
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
     if (!query.trim()) { setResults([]); setSearched(false); return }
@@ -55,7 +64,10 @@ export function SearchPage() {
             className="w-full pl-12 pr-12 py-4 bg-surface border border-border rounded-xl text-base outline-none focus:border-accent transition-colors"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-white transition-colors">
+            <button
+              onClick={() => { setQuery(''); setResults([]); setSearched(false) }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-white transition-colors"
+            >
               <X size={18} />
             </button>
           )}
@@ -78,7 +90,13 @@ export function SearchPage() {
             </p>
             <div className="space-y-5">
               {results.map((post, i) => (
-                <PostCard key={post.id} post={post} onVote={vote} onAuthRequired={() => setAuthOpen(true)} delay={i * 40} />
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onVote={vote}
+                  onAuthRequired={() => setAuthOpen(true)}
+                  delay={i * 40}
+                />
               ))}
             </div>
           </>
