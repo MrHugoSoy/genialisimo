@@ -111,7 +111,12 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
           {post.profiles?.avatar_emoji ?? '😂'}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold truncate">{post.profiles?.username ?? 'anon'}</p>
+          <p
+  className="text-sm font-bold truncate hover:text-accent cursor-pointer transition-colors"
+  onClick={() => router.push(`/user/${post.profiles?.username}`)}
+>
+  {post.profiles?.username ?? 'anon'}
+</p>
           <p className="text-[11px] font-mono text-muted">{timeAgo(post.created_at)}</p>
         </div>
         {cat && (

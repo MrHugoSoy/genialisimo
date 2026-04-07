@@ -33,7 +33,7 @@ export function UserMenu() {
   }
 
   const menuItems = [
-    { icon: User,      label: 'Mi perfil',       action: () => { router.push('/profile'); setMenuOpen(false) } },
+    { icon: User,      label: 'Mi perfil',       action: () => { router.push(`/user/${profile.username}`); setMenuOpen(false) } },
     { icon: Upload,    label: 'Subir post',       action: () => { router.push('/create'); setMenuOpen(false) } },
     { icon: BarChart2, label: 'Mis estadísticas', action: () => toast('📊', 'Próximamente') },
     { icon: Settings,  label: 'Ajustes',          action: () => toast('⚙️', 'Próximamente') },
@@ -69,13 +69,16 @@ export function UserMenu() {
           <div className="absolute right-0 top-full mt-2 w-56 bg-surface border border-border rounded-xl p-2 shadow-2xl z-50 animate-popIn">
             {/* Header */}
             <div className="px-3 py-3 border-b border-border mb-2">
-              <div className="flex items-center gap-2 mb-2">
+              <div
+                className="flex items-center gap-2 mb-2 cursor-pointer"
+                onClick={() => { router.push(`/user/${profile.username}`); setMenuOpen(false) }}
+              >
                 <div className="w-9 h-9 rounded-full bg-surface2 border border-border flex items-center justify-center text-xl">
                   {profile.avatar_emoji}
                 </div>
                 <div>
-                  <p className="font-bold text-sm leading-tight">{profile.username}</p>
-                  <p className="text-[10px] text-muted font-mono">Miembro</p>
+                  <p className="font-bold text-sm leading-tight hover:text-accent transition-colors">{profile.username}</p>
+                  <p className="text-[10px] text-muted font-mono">Ver perfil público →</p>
                 </div>
               </div>
               <div className="flex gap-4">
