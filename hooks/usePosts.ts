@@ -5,6 +5,38 @@ import { Post, Category } from '@/types'
 
 type FeedType = 'hot' | 'trending' | 'fresh' | 'top'
 
+async function compressImage(file: File): Promise<File> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')!
+    const img = new window.Image()
+    const url = URL.createObjectURL(file)
+
+    img.onload = () => {
+      const maxW = 1200
+      const ratio = Math.min(1, maxW / img.width)
+      canvas.width = img.width * ratio
+      canvas.height = img.height * ratio
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      URL.revokeObjectURL(url)
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+          }))
+        },
+        'image/jpeg',
+        0.82
+      )
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file) }
+    img.src = url
+  })
+}
+
 export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: string) {
   const supabase = createClient()
   const [posts, setPosts] = useState<Post[]>([])
@@ -60,27 +92,38 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     const supabaseClient = createClient()
     const { data: { user } } = await supabaseClient.auth.getUser()
     if (!user) return { data: null, error: 'No autenticado' }
+
     let image_url: string | null = null
+
     if (imageFile) {
-      const path = `${user.id}/${Date.now()}-${imageFile.name}`
+      // Comprimir si no es GIF (los GIFs pierden animación al comprimir)
+      const fileToUpload = imageFile.type === 'image/gif'
+        ? imageFile
+        : await compressImage(imageFile)
+
+      const path = `${user.id}/${Date.now()}-${fileToUpload.name}`
       const { error: uploadError } = await supabaseClient.storage
         .from('posts')
-        .upload(path, imageFile)
+        .upload(path, fileToUpload)
+
       if (uploadError) {
         console.warn('Upload error:', uploadError.message)
       } else {
         image_url = supabaseClient.storage.from('posts').getPublicUrl(path).data.publicUrl
       }
     }
+
     const { data, error } = await supabaseClient
       .from('posts')
       .insert({ title, category, image_url, user_id: user.id, tags })
       .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
       .single()
+
     if (error) {
       console.error('Post insert error:', JSON.stringify(error, null, 2))
       return { data: null, error: error.message }
     }
+
     if (data) setPosts(prev => [data, ...prev])
     return { data, error: null }
   }
