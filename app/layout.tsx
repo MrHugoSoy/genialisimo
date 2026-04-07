@@ -4,6 +4,7 @@ import { Topbar } from '@/components/layout/Topbar'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { Toaster } from '@/components/ui/Toaster'
 import { AuthProvider } from '@/components/auth/AuthProvider'
+import { Analytics } from '@/components/ui/Analytics'
 
 export const metadata: Metadata = {
   title: 'Genialisimo 🔥 — Memes y contenido viral en español',
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="pb-16 md:pb-0">
         <AuthProvider>
           <Toaster>
+            <Analytics />
             <Topbar />
             <main>{children}</main>
             <MobileNav />
