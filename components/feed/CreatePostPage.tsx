@@ -5,9 +5,17 @@ import { useAuthContext } from '@/components/auth/AuthProvider'
 import { usePosts } from '@/hooks/usePosts'
 import { useToast } from '@/components/ui/Toaster'
 import { CATEGORIES, POPULAR_TAGS, Category } from '@/types'
-import { Upload, ImagePlus, X, Tag, Plus } from 'lucide-react'
+import { Upload, ImagePlus, X, Tag, Plus, Lightbulb } from 'lucide-react'
 import Image from 'next/image'
 import clsx from 'clsx'
+
+const TITLE_EXAMPLES = [
+  'Cuando el wifi se cae justo en la mejor parte...',
+  'Mi cara cuando el lunes llega sin avisar',
+  'Yo a las 3am sin razón aparente',
+  'El gato de mi vecina juzgándome otra vez',
+  'Developers vs el código que ellos mismos escribieron',
+]
 
 export function CreatePostPage() {
   const { user, loading } = useAuthContext()
@@ -22,6 +30,7 @@ export function CreatePostPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [customTag, setCustomTag] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [showTips, setShowTips] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -56,6 +65,11 @@ export function CreatePostPage() {
     setCustomTag('')
   }
 
+  function useTitleExample(example: string) {
+    setTitle(example)
+    setShowTips(false)
+  }
+
   async function handleSubmit() {
     if (!title.trim()) { toast('⚠️', 'Escribe un título'); return }
     setSubmitting(true)
@@ -66,6 +80,17 @@ export function CreatePostPage() {
     router.push('/')
   }
 
+  const titleQuality = title.length === 0 ? null
+    : title.length < 15 ? 'corto'
+    : title.length < 40 ? 'bueno'
+    : 'excelente'
+
+  const qualityColor = {
+    corto: 'text-orange-400',
+    bueno: 'text-accent2',
+    excelente: 'text-fresh',
+  }
+
   return (
     <div className="max-w-xl mx-auto px-4 pt-24 pb-16">
       <h1 className="font-bebas text-4xl tracking-wide mb-8">CREAR POST</h1>
@@ -73,16 +98,75 @@ export function CreatePostPage() {
       <div className="space-y-5">
         {/* Title */}
         <div>
-          <label className="block text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Título *</label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-[10px] font-mono uppercase tracking-widest text-muted">Título *</label>
+            <button
+              onClick={() => setShowTips(o => !o)}
+              className="flex items-center gap-1 text-[10px] text-muted hover:text-accent2 transition-colors font-mono"
+            >
+              <Lightbulb size={11} /> ejemplos
+            </button>
+          </div>
+
+          {/* Tips panel */}
+          {showTips && (
+            <div className="mb-3 bg-surface2 border border-border rounded-xl p-3 space-y-1 animate-slideUp">
+              <p className="text-[10px] font-mono text-muted uppercase tracking-widest mb-2">
+                💡 Títulos que funcionan mejor en Google:
+              </p>
+              {TITLE_EXAMPLES.map((ex, i) => (
+                <button
+                  key={i}
+                  onClick={() => useTitleExample(ex)}
+                  className="w-full text-left text-xs text-muted hover:text-white hover:bg-surface px-2 py-1.5 rounded-lg transition-colors"
+                >
+                  {ex}
+                </button>
+              ))}
+              <div className="pt-2 border-t border-border">
+                <p className="text-[10px] text-muted">
+                  ✅ <b className="text-white">Bueno:</b> "Cuando el wifi se cae justo en la película"
+                </p>
+                <p className="text-[10px] text-muted mt-1">
+                  ❌ <b className="text-white">Evitar:</b> "jajaja mira esto" o "😂😂😂"
+                </p>
+              </div>
+            </div>
+          )}
+
           <input
             type="text"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            placeholder="Escribe algo que haga reír..."
+            placeholder="Ej: Cuando el wifi se cae justo en la mejor parte..."
             maxLength={120}
             className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm outline-none focus:border-accent transition-colors"
           />
-          <p className="text-[10px] font-mono text-muted mt-1 text-right">{title.length}/120</p>
+
+          <div className="flex items-center justify-between mt-1.5">
+            <div className="flex items-center gap-1.5">
+              {titleQuality && (
+                <>
+                  <div className={clsx('w-1.5 h-1.5 rounded-full', {
+                    'bg-orange-400': titleQuality === 'corto',
+                    'bg-accent2': titleQuality === 'bueno',
+                    'bg-fresh': titleQuality === 'excelente',
+                  })} />
+                  <span className={clsx('text-[10px] font-mono', qualityColor[titleQuality])}>
+                    {titleQuality === 'corto' && 'Título muy corto'}
+                    {titleQuality === 'bueno' && 'Buen título ✓'}
+                    {titleQuality === 'excelente' && 'Excelente título 🔥'}
+                  </span>
+                </>
+              )}
+              {!titleQuality && (
+                <span className="text-[10px] text-muted font-mono">
+                  💡 Títulos descriptivos aparecen mejor en Google
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] font-mono text-muted">{title.length}/120</p>
+          </div>
         </div>
 
         {/* Category */}
@@ -113,7 +197,6 @@ export function CreatePostPage() {
             Tags <span className="text-muted normal-case">({selectedTags.length}/5)</span>
           </label>
 
-          {/* Selected tags */}
           {selectedTags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-3">
               {selectedTags.map(tag => (
@@ -130,7 +213,6 @@ export function CreatePostPage() {
             </div>
           )}
 
-          {/* Popular tags */}
           <div className="flex flex-wrap gap-1.5 mb-3">
             {POPULAR_TAGS.slice(0, 12).map(tag => (
               <button
@@ -148,7 +230,6 @@ export function CreatePostPage() {
             ))}
           </div>
 
-          {/* Custom tag input */}
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Tag size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
