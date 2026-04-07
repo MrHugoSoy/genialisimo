@@ -1,10 +1,11 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuthContext } from './AuthProvider'
 import { PostCard } from '@/components/feed/PostCard'
 import { AuthModal } from './AuthModal'
 import { Profile, Post, BANNER_GRADIENTS } from '@/types'
-import { Calendar, Award, FileText } from 'lucide-react'
+import { Calendar, Award, FileText, Pencil } from 'lucide-react'
 import { usePosts } from '@/hooks/usePosts'
 
 interface UserProfileClientProps {
@@ -19,6 +20,7 @@ function formatDate(date: string) {
 export function UserProfileClient({ profile, posts: initialPosts }: UserProfileClientProps) {
   const { user } = useAuthContext()
   const { vote } = usePosts()
+  const router = useRouter()
   const [authOpen, setAuthOpen] = useState(false)
   const [posts, setPosts] = useState(initialPosts)
   const isOwn = user?.id === profile.id
@@ -48,12 +50,12 @@ export function UserProfileClient({ profile, posts: initialPosts }: UserProfileC
             )}
           </div>
           {isOwn && (
-            
-              href="/profile"
-              className="pb-2 text-xs font-bold text-muted hover:text-accent border border-border hover:border-accent px-3 py-1.5 rounded-lg transition-colors shrink-0"
+            <button
+              onClick={() => router.push('/profile')}
+              className="pb-2 flex items-center gap-1.5 text-xs font-bold text-muted hover:text-accent border border-border hover:border-accent px-3 py-1.5 rounded-lg transition-colors shrink-0"
             >
-              Editar perfil
-            </a>
+              <Pencil size={12} /> Editar perfil
+            </button>
           )}
         </div>
 
