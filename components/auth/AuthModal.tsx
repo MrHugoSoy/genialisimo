@@ -39,7 +39,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
   }
   const strength = passStrength(regPass)
   const strengthColors = ['', '#ef4444', '#ff6b35', '#ffcc00', '#00d4aa', '#00d4aa']
-  const strengthLabels = ['', 'Débil', 'Regular', 'Buena', 'Fuerte 💪', 'Fuerte 💪']
+  const strengthLabels = ['', 'Debil', 'Regular', 'Buena', 'Fuerte', 'Fuerte']
 
   async function handleLogin() {
     if (!loginEmail || !loginPass) { toast('⚠️', 'Completa todos los campos'); return }
@@ -47,19 +47,19 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
     const { error } = await signIn(loginEmail, loginPass)
     setLoading(false)
     if (error) { toast('❌', 'Credenciales incorrectas'); return }
-    toast('👋', '¡Bienvenido de vuelta!')
+    toast('👋', 'Bienvenido de vuelta!')
     onClose()
   }
 
   async function handleRegister() {
     if (!regName || !regUser || !regEmail || !regPass) { toast('⚠️', 'Completa todos los campos'); return }
     if (!/^[a-z0-9_]{3,20}$/i.test(regUser)) { toast('⚠️', 'Usuario: 3-20 chars sin espacios'); return }
-    if (regPass.length < 6) { toast('⚠️', 'Contraseña mínimo 6 caracteres'); return }
+    if (regPass.length < 6) { toast('⚠️', 'Contrasena minimo 6 caracteres'); return }
     setLoading(true)
     const { error } = await signUp(regEmail, regPass, regUser, selectedAvatar)
     setLoading(false)
     if (error) { toast('❌', error.message); return }
-    toast('🚀', `Cuenta creada! Bienvenido, ${regUser}!`)
+    toast('🚀', 'Cuenta creada! Bienvenido, ' + regUser)
     onClose()
   }
 
@@ -107,16 +107,20 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
             <div className="relative">
               <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
               <input
-                type="text" placeholder="Email o usuario"
-                value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
+                type="text"
+                placeholder="Email o usuario"
+                value={loginEmail}
+                onChange={e => setLoginEmail(e.target.value)}
                 className="w-full pl-9 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
               />
             </div>
             <div className="relative">
               <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
               <input
-                type={showPass ? 'text' : 'password'} placeholder="Contrasena"
-                value={loginPass} onChange={e => setLoginPass(e.target.value)}
+                type={showPass ? 'text' : 'password'}
+                placeholder="Contrasena"
+                value={loginPass}
+                onChange={e => setLoginPass(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLogin()}
                 className="w-full pl-9 pr-10 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
               />
@@ -125,7 +129,8 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               </button>
             </div>
             <button
-              onClick={handleLogin} disabled={loading}
+              onClick={handleLogin}
+              disabled={loading}
               className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50 mt-2"
             >
               {loading ? 'ENTRANDO...' : 'ENTRAR'}
@@ -135,7 +140,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               onClick={onClose}
               className="block text-center text-xs text-muted hover:text-accent transition-colors"
             >
-             {'Olvidaste tu contrasena?'}
+              Olvidaste tu contrasena?
             </a>
           </div>
         )}
@@ -146,16 +151,20 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               <div className="relative">
                 <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                 <input
-                  type="text" placeholder="Nombre"
-                  value={regName} onChange={e => setRegName(e.target.value)}
+                  type="text"
+                  placeholder="Nombre"
+                  value={regName}
+                  onChange={e => setRegName(e.target.value)}
                   className="w-full pl-9 pr-3 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
                 />
               </div>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">@</span>
                 <input
-                  type="text" placeholder="username"
-                  value={regUser} onChange={e => setRegUser(e.target.value)}
+                  type="text"
+                  placeholder="username"
+                  value={regUser}
+                  onChange={e => setRegUser(e.target.value)}
                   className="w-full pl-7 pr-3 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
                 />
               </div>
@@ -163,8 +172,10 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
             <div className="relative">
               <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
               <input
-                type="email" placeholder="tu@email.com"
-                value={regEmail} onChange={e => setRegEmail(e.target.value)}
+                type="email"
+                placeholder="tu@email.com"
+                value={regEmail}
+                onChange={e => setRegEmail(e.target.value)}
                 className="w-full pl-9 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
               />
             </div>
@@ -172,8 +183,10 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               <div className="relative">
                 <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                 <input
-                  type={showPass ? 'text' : 'password'} placeholder="Contrasena (min. 6 chars)"
-                  value={regPass} onChange={e => setRegPass(e.target.value)}
+                  type={showPass ? 'text' : 'password'}
+                  placeholder="Contrasena (min. 6 chars)"
+                  value={regPass}
+                  onChange={e => setRegPass(e.target.value)}
                   className="w-full pl-9 pr-10 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
                 />
                 <button onClick={() => setShowPass(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
@@ -212,7 +225,8 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               </div>
             </div>
             <button
-              onClick={handleRegister} disabled={loading}
+              onClick={handleRegister}
+              disabled={loading}
               className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50"
             >
               {loading ? 'CREANDO...' : 'CREAR CUENTA'}
