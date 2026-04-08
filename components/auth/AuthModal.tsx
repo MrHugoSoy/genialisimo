@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 import { useAuthContext } from './AuthProvider'
 import { useToast } from '@/components/ui/Toaster'
@@ -27,6 +27,10 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
   const [regUser, setRegUser] = useState('')
   const [regEmail, setRegEmail] = useState('')
   const [regPass, setRegPass] = useState('')
+
+  useEffect(() => {
+    if (isOpen) setTab(defaultTab)
+  }, [isOpen, defaultTab])
 
   const passStrength = (p: string) => {
     let s = 0
@@ -140,7 +144,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               onClick={onClose}
               className="block text-center text-xs text-muted hover:text-accent transition-colors"
             >
-              Olvidaste tu contrasena?
+              ¿Olvidaste tu contrasena?
             </a>
           </div>
         )}
