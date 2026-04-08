@@ -37,6 +37,18 @@ async function compressImage(file: File): Promise<File> {
   })
 }
 
+export function extractYoutubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+  ]
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) return match[1]
+  }
+  return null
+}
+
 export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: string) {
   const supabase = createClient()
   const [posts, setPosts] = useState<Post[]>([])
@@ -88,15 +100,30 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     }
   }
 
-  async function createPost(title: string, category: Category, imageFile?: File, tags: string[] = []) {
+  async function createPost(
+    title: string,
+    category: Category,
+    imageFile?: File,
+    tags: string[] = [],
+    videoUrl?: string
+  ) {
     const supabaseClient = createClient()
     const { data: { user } } = await supabaseClient.auth.getUser()
     if (!user) return { data: null, error: 'No autenticado' }
 
     let image_url: string | null = null
+    let video_url: string | null = null
 
+    // Procesar video URL
+    if (videoUrl) {
+      const youtubeId = extractYoutubeId(videoUrl)
+      if (youtubeId) {
+        video_url = `https://www.youtube.com/embed/${youtubeId}`
+      }
+    }
+
+    // Procesar imagen
     if (imageFile) {
-      // Comprimir si no es GIF (los GIFs pierden animación al comprimir)
       const fileToUpload = imageFile.type === 'image/gif'
         ? imageFile
         : await compressImage(imageFile)
@@ -115,7 +142,7 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
 
     const { data, error } = await supabaseClient
       .from('posts')
-      .insert({ title, category, image_url, user_id: user.id, tags })
+      .insert({ title, category, image_url, video_url, user_id: user.id, tags })
       .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
       .single()
 

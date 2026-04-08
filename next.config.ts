@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: '**.supabase.co' },
       { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'www.youtube.com' },
+{ protocol: 'https', hostname: 'i.ytimg.com' },
     ],
   },
   async headers() {

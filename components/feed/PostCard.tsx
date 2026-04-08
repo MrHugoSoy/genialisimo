@@ -35,7 +35,7 @@ const REPORT_REASONS = [
   'Contenido inapropiado',
   'Spam',
   'Violencia o gore',
-  'Desinformación',
+  'Desinformacion',
   'Acoso',
   'Otro',
 ]
@@ -117,7 +117,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
   }
 
   async function handleDelete() {
-    if (!confirm('¿Borrar este post? No se puede deshacer.')) return
+    if (!confirm('Borrar este post? No se puede deshacer.')) return
     setDeleting(true)
     const { error } = await deletePost(post.id)
     if (error) {
@@ -131,7 +131,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
   }
 
   async function handleSaveEdit() {
-    if (!editTitle.trim()) { toast('⚠️', 'El título no puede estar vacío'); return }
+    if (!editTitle.trim()) { toast('⚠️', 'El titulo no puede estar vacio'); return }
     if (editTitle === currentTitle) { setEditing(false); return }
     setSaving(true)
     const supabase = createClient()
@@ -140,10 +140,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
       .update({ title: editTitle.trim() })
       .eq('id', post.id)
     setSaving(false)
-    if (error) {
-      toast('❌', 'Error al editar')
-      return
-    }
+    if (error) { toast('❌', 'Error al editar'); return }
     setCurrentTitle(editTitle.trim())
     setEditing(false)
     toast('✅', 'Post actualizado')
@@ -204,7 +201,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
           </span>
         )}
 
-        {/* Menú opciones */}
+        {/* Menu opciones */}
         <div className="relative">
           <button
             onClick={() => { setMenuOpen(o => !o); setReportOpen(false) }}
@@ -221,7 +218,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
                     onClick={() => { setMenuOpen(false); setEditing(true) }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
                   >
-                    <Pencil size={14} strokeWidth={2} /> Editar título
+                    <Pencil size={14} strokeWidth={2} /> Editar titulo
                   </button>
                   <button
                     onClick={() => { setMenuOpen(false); handleDelete() }}
@@ -247,7 +244,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
           {/* Modal de reporte */}
           {reportOpen && (
             <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-xl p-3 shadow-2xl z-20 w-52 animate-popIn">
-              <p className="text-xs font-bold text-muted uppercase tracking-widest mb-2 font-mono">¿Por qué reportas?</p>
+              <p className="text-xs font-bold text-muted uppercase tracking-widest mb-2 font-mono">Por que reportas?</p>
               <div className="space-y-0.5">
                 {REPORT_REASONS.map(reason => (
                   <button
@@ -271,7 +268,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
         </div>
       </div>
 
-      {/* Title — normal o editable */}
+      {/* Title */}
       {editing ? (
         <div className="px-4 pb-3 flex gap-2 items-center">
           <input
@@ -305,7 +302,17 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
       )}
 
       {/* Media */}
-      {post.image_url && (
+      {post.video_url && (
+        <div className="relative bg-black overflow-hidden aspect-video">
+          <iframe
+            src={post.video_url}
+            className="w-full h-full"
+            allowFullScreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          />
+        </div>
+      )}
+      {!post.video_url && post.image_url && (
         <div className="relative bg-black overflow-hidden" style={{ maxHeight: 560 }}>
           <Image
             src={post.image_url}
@@ -314,6 +321,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
             height={560}
             className="w-full object-contain"
             style={{ maxHeight: 560 }}
+            priority={delay === 0}
           />
           <div className="absolute top-3 right-3 flex gap-2">
             {isHot && (
@@ -329,7 +337,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
           </div>
         </div>
       )}
-      {!post.image_url && (
+      {!post.video_url && !post.image_url && (
         <div className="mx-4 mb-3 h-48 bg-surface2 rounded-lg flex items-center justify-center text-5xl">
           😂
         </div>
@@ -388,7 +396,7 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
           </span>
         </button>
 
-        {/* Compartir con dropdown */}
+        {/* Compartir */}
         <div className="relative ml-auto">
           <button
             onClick={() => setShareOpen(o => !o)}

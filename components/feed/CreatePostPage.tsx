@@ -2,19 +2,19 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from '@/components/auth/AuthProvider'
-import { usePosts } from '@/hooks/usePosts'
+import { usePosts, extractYoutubeId } from '@/hooks/usePosts'
 import { useToast } from '@/components/ui/Toaster'
 import { CATEGORIES, POPULAR_TAGS, Category } from '@/types'
-import { Upload, ImagePlus, X, Tag, Plus, Lightbulb } from 'lucide-react'
+import { Upload, ImagePlus, X, Tag, Plus, Lightbulb, Youtube } from 'lucide-react'
 import Image from 'next/image'
 import clsx from 'clsx'
 
 const TITLE_EXAMPLES = [
   'Cuando el wifi se cae justo en la mejor parte...',
   'Mi cara cuando el lunes llega sin avisar',
-  'Yo a las 3am sin razón aparente',
-  'El gato de mi vecina juzgándome otra vez',
-  'Developers vs el código que ellos mismos escribieron',
+  'Yo a las 3am sin razon aparente',
+  'El gato de mi vecina juzgandome otra vez',
+  'Developers vs el codigo que ellos mismos escribieron',
 ]
 
 export function CreatePostPage() {
@@ -27,6 +27,9 @@ export function CreatePostPage() {
   const [category, setCategory] = useState<Category>('memes')
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
+  const [videoUrl, setVideoUrl] = useState('')
+  const [videoPreviewId, setVideoPreviewId] = useState<string | null>(null)
+  const [mediaTab, setMediaTab] = useState<'image' | 'video'>('image')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [customTag, setCustomTag] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -38,8 +41,8 @@ export function CreatePostPage() {
   }, [user, loading])
 
   function handleFile(f: File) {
-    if (!f.type.startsWith('image/')) { toast('⚠️', 'Solo imágenes'); return }
-    if (f.size > 20 * 1024 * 1024) { toast('⚠️', 'Máximo 20MB'); return }
+    if (!f.type.startsWith('image/')) { toast('⚠️', 'Solo imagenes'); return }
+    if (f.size > 20 * 1024 * 1024) { toast('⚠️', 'Maximo 20MB'); return }
     setFile(f)
     setPreview(URL.createObjectURL(f))
   }
@@ -48,6 +51,12 @@ export function CreatePostPage() {
     e.preventDefault()
     const f = e.dataTransfer.files[0]
     if (f) handleFile(f)
+  }
+
+  function handleVideoUrl(url: string) {
+    setVideoUrl(url)
+    const id = extractYoutubeId(url)
+    setVideoPreviewId(id)
   }
 
   function toggleTag(tag: string) {
@@ -60,7 +69,7 @@ export function CreatePostPage() {
     const t = customTag.trim().toLowerCase().replace(/[^a-z0-9_]/g, '')
     if (!t) return
     if (selectedTags.includes(t)) { setCustomTag(''); return }
-    if (selectedTags.length >= 5) { toast('⚠️', 'Máximo 5 tags'); return }
+    if (selectedTags.length >= 5) { toast('⚠️', 'Maximo 5 tags'); return }
     setSelectedTags(prev => [...prev, t])
     setCustomTag('')
   }
@@ -71,12 +80,21 @@ export function CreatePostPage() {
   }
 
   async function handleSubmit() {
-    if (!title.trim()) { toast('⚠️', 'Escribe un título'); return }
+    if (!title.trim()) { toast('⚠️', 'Escribe un titulo'); return }
+    if (mediaTab === 'video' && videoUrl && !videoPreviewId) {
+      toast('⚠️', 'Link de YouTube invalido'); return
+    }
     setSubmitting(true)
-    const { error } = await createPost(title.trim(), category, file ?? undefined, selectedTags)
+    const { error } = await createPost(
+      title.trim(),
+      category,
+      mediaTab === 'image' ? (file ?? undefined) : undefined,
+      selectedTags,
+      mediaTab === 'video' ? videoUrl : undefined
+    )
     setSubmitting(false)
     if (error) { toast('❌', String(error)); return }
-    toast('🚀', '¡Post publicado!')
+    toast('🚀', 'Post publicado!')
     router.push('/')
   }
 
@@ -99,7 +117,7 @@ export function CreatePostPage() {
         {/* Title */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-[10px] font-mono uppercase tracking-widest text-muted">Título *</label>
+            <label className="text-[10px] font-mono uppercase tracking-widest text-muted">Titulo *</label>
             <button
               onClick={() => setShowTips(o => !o)}
               className="flex items-center gap-1 text-[10px] text-muted hover:text-accent2 transition-colors font-mono"
@@ -108,11 +126,10 @@ export function CreatePostPage() {
             </button>
           </div>
 
-          {/* Tips panel */}
           {showTips && (
             <div className="mb-3 bg-surface2 border border-border rounded-xl p-3 space-y-1 animate-slideUp">
               <p className="text-[10px] font-mono text-muted uppercase tracking-widest mb-2">
-                💡 Títulos que funcionan mejor en Google:
+                Titulos que funcionan mejor en Google:
               </p>
               {TITLE_EXAMPLES.map((ex, i) => (
                 <button
@@ -125,10 +142,10 @@ export function CreatePostPage() {
               ))}
               <div className="pt-2 border-t border-border">
                 <p className="text-[10px] text-muted">
-                  ✅ <b className="text-white">Bueno:</b> "Cuando el wifi se cae justo en la película"
+                  Bueno: "Cuando el wifi se cae justo en la pelicula"
                 </p>
                 <p className="text-[10px] text-muted mt-1">
-                  ❌ <b className="text-white">Evitar:</b> "jajaja mira esto" o "😂😂😂"
+                  Evitar: "jajaja mira esto"
                 </p>
               </div>
             </div>
@@ -153,15 +170,15 @@ export function CreatePostPage() {
                     'bg-fresh': titleQuality === 'excelente',
                   })} />
                   <span className={clsx('text-[10px] font-mono', qualityColor[titleQuality])}>
-                    {titleQuality === 'corto' && 'Título muy corto'}
-                    {titleQuality === 'bueno' && 'Buen título ✓'}
-                    {titleQuality === 'excelente' && 'Excelente título 🔥'}
+                    {titleQuality === 'corto' && 'Titulo muy corto'}
+                    {titleQuality === 'bueno' && 'Buen titulo'}
+                    {titleQuality === 'excelente' && 'Excelente titulo'}
                   </span>
                 </>
               )}
               {!titleQuality && (
                 <span className="text-[10px] text-muted font-mono">
-                  💡 Títulos descriptivos aparecen mejor en Google
+                  Titulos descriptivos aparecen mejor en Google
                 </span>
               )}
             </div>
@@ -171,7 +188,7 @@ export function CreatePostPage() {
 
         {/* Category */}
         <div>
-          <label className="block text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Categoría</label>
+          <label className="block text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Categoria</label>
           <div className="grid grid-cols-4 gap-2">
             {(Object.entries(CATEGORIES) as [Category, any][]).map(([key, cat]) => (
               <button
@@ -252,32 +269,94 @@ export function CreatePostPage() {
           </div>
         </div>
 
-        {/* Image upload */}
+        {/* Media — tabs imagen / video */}
         <div>
-          <label className="block text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Imagen / GIF</label>
-          {preview ? (
-            <div className="relative rounded-xl overflow-hidden bg-black">
-              <Image src={preview} alt="preview" width={600} height={400} className="w-full object-contain max-h-80" />
-              <button
-                onClick={() => { setFile(null); setPreview(null) }}
-                className="absolute top-3 right-3 w-8 h-8 bg-black/70 rounded-full flex items-center justify-center text-white hover:bg-black transition-colors"
-              >
-                <X size={14} />
-              </button>
-            </div>
-          ) : (
-            <div
-              onDrop={handleDrop}
-              onDragOver={e => e.preventDefault()}
-              onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-accent hover:bg-accent/5 transition-all"
+          <div className="flex gap-1 bg-surface2 rounded-xl p-1 mb-4">
+            <button
+              onClick={() => setMediaTab('image')}
+              className={clsx(
+                'flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all',
+                mediaTab === 'image' ? 'bg-surface text-white' : 'text-muted hover:text-white'
+              )}
             >
-              <ImagePlus size={36} className="mx-auto mb-3 text-muted" />
-              <p className="text-sm text-muted font-medium">Arrastra tu imagen o haz clic</p>
-              <p className="text-[10px] font-mono text-muted mt-1">PNG · JPG · GIF · WEBP · máx 20MB</p>
+              <ImagePlus size={13} /> Imagen / GIF
+            </button>
+            <button
+              onClick={() => setMediaTab('video')}
+              className={clsx(
+                'flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all',
+                mediaTab === 'video' ? 'bg-surface text-white' : 'text-muted hover:text-white'
+              )}
+            >
+              <Youtube size={13} /> Video YouTube
+            </button>
+          </div>
+
+          {/* Imagen */}
+          {mediaTab === 'image' && (
+            <>
+              {preview ? (
+                <div className="relative rounded-xl overflow-hidden bg-black">
+                  <Image src={preview} alt="preview" width={600} height={400} className="w-full object-contain max-h-80" />
+                  <button
+                    onClick={() => { setFile(null); setPreview(null) }}
+                    className="absolute top-3 right-3 w-8 h-8 bg-black/70 rounded-full flex items-center justify-center text-white hover:bg-black transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={e => e.preventDefault()}
+                  onClick={() => fileRef.current?.click()}
+                  className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-accent hover:bg-accent/5 transition-all"
+                >
+                  <ImagePlus size={36} className="mx-auto mb-3 text-muted" />
+                  <p className="text-sm text-muted font-medium">Arrastra tu imagen o haz clic</p>
+                  <p className="text-[10px] font-mono text-muted mt-1">PNG · JPG · GIF · WEBP · max 20MB</p>
+                </div>
+              )}
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+            </>
+          )}
+
+          {/* Video YouTube */}
+          {mediaTab === 'video' && (
+            <div>
+              <div className="relative">
+                <Youtube size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500" />
+                <input
+                  type="text"
+                  value={videoUrl}
+                  onChange={e => handleVideoUrl(e.target.value)}
+                  placeholder="https://youtube.com/watch?v=..."
+                  className="w-full pl-9 pr-4 py-3 bg-surface border border-border rounded-xl text-sm outline-none focus:border-accent transition-colors"
+                />
+              </div>
+
+              {videoUrl && !videoPreviewId && (
+                <p className="text-[11px] text-accent font-mono mt-1">Link de YouTube invalido</p>
+              )}
+
+              {videoPreviewId && (
+                <div className="mt-3 rounded-xl overflow-hidden bg-black aspect-video">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoPreviewId}`}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  />
+                </div>
+              )}
+
+              {!videoUrl && (
+                <p className="text-[10px] text-muted font-mono mt-2">
+                  Pega cualquier link de YouTube — videos, Shorts, todos funcionan
+                </p>
+              )}
             </div>
           )}
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
         </div>
 
         {/* Submit */}
