@@ -8,7 +8,10 @@ export interface Profile {
   avatar_emoji: string
   bio: string | null
   points: number
+  posts: number
   banner: string | null
+  followers: number
+  following: number
   created_at: string
 }
 
@@ -44,7 +47,7 @@ export const CATEGORIES: Record<Category, { label: string; emoji: string; color:
   sports:    { label: 'Deportes',  emoji: '⚽', color: '#22c55e' },
   fails:     { label: 'Fails',     emoji: '💀', color: '#ef4444' },
   relatable: { label: 'Relatable', emoji: '😔', color: '#f59e0b' },
-  movies:    { label: 'Películas', emoji: '🎬', color: '#ec4899' },
+  movies:    { label: 'Peliculas', emoji: '🎬', color: '#ec4899' },
 }
 
 export const AVATARS = ['🗿','😈','🤡','👾','🦊','🐸','🤖','💀','🧠','👽','🐙','🦁']
