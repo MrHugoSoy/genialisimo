@@ -20,11 +20,9 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
   const [loading, setLoading] = useState(false)
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0])
 
-  // Login fields
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPass, setLoginPass] = useState('')
 
-  // Register fields
   const [regName, setRegName] = useState('')
   const [regUser, setRegUser] = useState('')
   const [regEmail, setRegEmail] = useState('')
@@ -134,9 +132,13 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
             >
               {loading ? 'ENTRANDO...' : 'ENTRAR →'}
             </button>
-            <p className="text-center text-xs text-muted cursor-pointer hover:text-accent transition-colors" onClick={() => toast('📧', 'Link de recuperación enviado')}>
+            
+              href="/reset-password"
+              onClick={onClose}
+              className="block text-center text-xs text-muted hover:text-accent transition-colors"
+            >
               ¿Olvidaste tu contraseña?
-            </p>
+            </a>
           </div>
         )}
 
