@@ -10,6 +10,12 @@ export const metadata: Metadata = {
   title: 'Genialisimo 🔥 — Memes y contenido viral en español',
   description: 'El mejor feed de memes, fails y contenido viral en español. Vota, comenta y comparte lo mejor de internet.',
   keywords: 'memes, viral, fails, humor, español, latino, gifs',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/favicon.svg',
+  },
   openGraph: {
     title: 'Genialisimo 🔥',
     description: 'Memes y contenido viral en español',
