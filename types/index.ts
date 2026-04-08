@@ -1,6 +1,6 @@
 export type Category =
   | 'memes' | 'gaming' | 'animals' | 'tech'
-  | 'sports' | 'fails' | 'relatable' | 'movies'
+  | 'sports' | 'fails' | 'relatable' | 'movies' | 'youtube'
 
 export interface Profile {
   id: string
@@ -49,6 +49,7 @@ export const CATEGORIES: Record<Category, { label: string; emoji: string; color:
   fails:     { label: 'Fails',     emoji: '💀', color: '#ef4444' },
   relatable: { label: 'Relatable', emoji: '😔', color: '#f59e0b' },
   movies:    { label: 'Peliculas', emoji: '🎬', color: '#ec4899' },
+  youtube:   { label: 'YouTube',   emoji: '▶️', color: '#ff0000' },
 }
 
 export const AVATARS = ['🗿','😈','🤡','👾','🦊','🐸','🤖','💀','🧠','👽','🐙','🦁']
@@ -65,5 +66,6 @@ export const BANNER_GRADIENTS = [
 export const POPULAR_TAGS = [
   'memes','relatable','lol','fyp','gato','fail',
   'based','devlife','lunes','cursed','viral','cringe',
-  'gaming','tech','animals','humor','españa','mexico'
+  'gaming','tech','animals','humor','españa','mexico',
+  'youtube','video',
 ]
