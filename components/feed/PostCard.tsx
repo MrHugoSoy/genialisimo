@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { MessageCircle, Share2, ChevronUp, ChevronDown, Flame, Sparkles, Tag, Trash2, MoreHorizontal, Flag, Copy, X } from 'lucide-react'
+import { MessageCircle, Share2, ChevronUp, ChevronDown, Flame, Sparkles, Tag, Trash2, MoreHorizontal, Flag, Copy, X, Pencil, Check } from 'lucide-react'
 import { Post, CATEGORIES } from '@/types'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { CommentSection } from './CommentSection'
@@ -55,6 +55,10 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
   const [deleted, setDeleted] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const [reporting, setReporting] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(post.title)
+  const [currentTitle, setCurrentTitle] = useState(post.title)
+  const [saving, setSaving] = useState(false)
   const cat = CATEGORIES[post.category as keyof typeof CATEGORIES]
   const isHot = votes > 5000
   const isFresh = (Date.now() - new Date(post.created_at).getTime()) < 3600_000
@@ -92,12 +96,12 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
   }
 
   function handleShareWhatsApp() {
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${post.title} ${postUrl}`)}`, '_blank')
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${currentTitle} ${postUrl}`)}`, '_blank')
     setShareOpen(false)
   }
 
   function handleShareX() {
-    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(postUrl)}`, '_blank')
+    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(currentTitle)}&url=${encodeURIComponent(postUrl)}`, '_blank')
     setShareOpen(false)
   }
 
@@ -124,6 +128,30 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
     setDeleted(true)
     toast('🗑️', 'Post borrado')
     onDelete?.(post.id)
+  }
+
+  async function handleSaveEdit() {
+    if (!editTitle.trim()) { toast('⚠️', 'El título no puede estar vacío'); return }
+    if (editTitle === currentTitle) { setEditing(false); return }
+    setSaving(true)
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('posts')
+      .update({ title: editTitle.trim() })
+      .eq('id', post.id)
+    setSaving(false)
+    if (error) {
+      toast('❌', 'Error al editar')
+      return
+    }
+    setCurrentTitle(editTitle.trim())
+    setEditing(false)
+    toast('✅', 'Post actualizado')
+  }
+
+  function handleCancelEdit() {
+    setEditTitle(currentTitle)
+    setEditing(false)
   }
 
   async function handleReport(reason: string) {
@@ -188,14 +216,22 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
           {menuOpen && (
             <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-xl p-1 shadow-2xl z-20 w-44 animate-popIn">
               {isOwner && (
-                <button
-                  onClick={() => { setMenuOpen(false); handleDelete() }}
-                  disabled={deleting}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface2 transition-colors"
-                >
-                  <Trash2 size={14} strokeWidth={2} />
-                  {deleting ? 'Borrando...' : 'Borrar post'}
-                </button>
+                <>
+                  <button
+                    onClick={() => { setMenuOpen(false); setEditing(true) }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
+                  >
+                    <Pencil size={14} strokeWidth={2} /> Editar título
+                  </button>
+                  <button
+                    onClick={() => { setMenuOpen(false); handleDelete() }}
+                    disabled={deleting}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface2 transition-colors"
+                  >
+                    <Trash2 size={14} strokeWidth={2} />
+                    {deleting ? 'Borrando...' : 'Borrar post'}
+                  </button>
+                </>
               )}
               {!isOwner && (
                 <button
@@ -235,15 +271,45 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
         </div>
       </div>
 
-      {/* Title */}
-      <h2 className="px-4 pb-3 text-lg font-bold leading-snug">{post.title}</h2>
+      {/* Title — normal o editable */}
+      {editing ? (
+        <div className="px-4 pb-3 flex gap-2 items-center">
+          <input
+            type="text"
+            value={editTitle}
+            onChange={e => setEditTitle(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleSaveEdit()
+              if (e.key === 'Escape') handleCancelEdit()
+            }}
+            maxLength={120}
+            autoFocus
+            className="flex-1 px-3 py-2 bg-surface2 border border-accent rounded-lg text-sm font-bold outline-none"
+          />
+          <button
+            onClick={handleSaveEdit}
+            disabled={saving}
+            className="p-2 bg-fresh/20 text-fresh hover:bg-fresh/30 rounded-lg transition-colors"
+          >
+            <Check size={16} strokeWidth={2.5} />
+          </button>
+          <button
+            onClick={handleCancelEdit}
+            className="p-2 bg-surface2 text-muted hover:text-white rounded-lg transition-colors"
+          >
+            <X size={16} strokeWidth={2} />
+          </button>
+        </div>
+      ) : (
+        <h2 className="px-4 pb-3 text-lg font-bold leading-snug">{currentTitle}</h2>
+      )}
 
       {/* Media */}
       {post.image_url && (
         <div className="relative bg-black overflow-hidden" style={{ maxHeight: 560 }}>
           <Image
             src={post.image_url}
-            alt={post.title}
+            alt={currentTitle}
             width={800}
             height={560}
             className="w-full object-contain"
@@ -340,29 +406,17 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
                   <X size={12} />
                 </button>
               </div>
-              <button
-                onClick={handleShareWhatsApp}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
-              >
+              <button onClick={handleShareWhatsApp} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors">
                 <span className="text-base">💬</span> WhatsApp
               </button>
-              <button
-                onClick={handleShareX}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
-              >
+              <button onClick={handleShareX} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors">
                 <span className="text-base font-bold text-white">𝕏</span> Twitter / X
               </button>
-              <button
-                onClick={handleShareFacebook}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
-              >
+              <button onClick={handleShareFacebook} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors">
                 <span className="text-base">👤</span> Facebook
               </button>
               <div className="h-px bg-border my-1" />
-              <button
-                onClick={handleCopyLink}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors"
-              >
+              <button onClick={handleCopyLink} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-surface2 transition-colors">
                 <Copy size={14} strokeWidth={2} /> Copiar link
               </button>
             </div>
