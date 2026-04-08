@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from './AuthProvider'
 import { useToast } from '@/components/ui/Toaster'
-import { User, LogOut, Upload, Bell, Settings, ChevronDown, BarChart2 } from 'lucide-react'
+import { User, LogOut, Upload, Settings, ChevronDown, BarChart2, Shield } from 'lucide-react'
 import { NotificationPanel, NotificationBell } from '@/components/ui/NotificationPanel'
 import clsx from 'clsx'
 
@@ -28,15 +28,17 @@ export function UserMenu() {
 
   async function handleLogout() {
     await signOut()
-    toast('👋', '¡Hasta luego!')
+    toast('👋', 'Hasta luego!')
     setMenuOpen(false)
   }
+
+  const isAdmin = (profile as any).role === 'admin'
 
   const menuItems = [
     { icon: User,      label: 'Mi perfil',       action: () => { router.push(`/user/${profile.username}`); setMenuOpen(false) } },
     { icon: Upload,    label: 'Subir post',       action: () => { router.push('/create'); setMenuOpen(false) } },
-    { icon: BarChart2, label: 'Mis estadísticas', action: () => toast('📊', 'Próximamente') },
-    { icon: Settings,  label: 'Ajustes',          action: () => toast('⚙️', 'Próximamente') },
+    { icon: BarChart2, label: 'Mis estadisticas', action: () => toast('📊', 'Proximamente') },
+    { icon: Settings,  label: 'Ajustes',          action: () => toast('⚙️', 'Proximamente') },
   ]
 
   return (
@@ -78,7 +80,7 @@ export function UserMenu() {
                 </div>
                 <div>
                   <p className="font-bold text-sm leading-tight hover:text-accent transition-colors">{profile.username}</p>
-                  <p className="text-[10px] text-muted font-mono">Ver perfil público →</p>
+                  <p className="text-[10px] text-muted font-mono">Ver perfil publico →</p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -90,6 +92,16 @@ export function UserMenu() {
                 ))}
               </div>
             </div>
+
+            {/* Admin link — solo visible para admins */}
+            {isAdmin && (
+              <button
+                onClick={() => { router.push('/admin'); setMenuOpen(false) }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-accent hover:text-white hover:bg-accent/10 transition-colors text-left mb-1"
+              >
+                <Shield size={14} strokeWidth={2} /> Panel Admin
+              </button>
+            )}
 
             {menuItems.map(({ icon: Icon, label, action }) => (
               <button
@@ -106,7 +118,7 @@ export function UserMenu() {
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface2 transition-colors text-left"
             >
-              <LogOut size={14} strokeWidth={2} /> Cerrar sesión
+              <LogOut size={14} strokeWidth={2} /> Cerrar sesion
             </button>
           </div>
         )}
