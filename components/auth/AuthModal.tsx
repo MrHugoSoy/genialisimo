@@ -135,7 +135,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               onClick={onClose}
               className="block text-center text-xs text-muted hover:text-accent transition-colors"
             >
-              Olvidaste tu contrasena?
+             {'Olvidaste tu contrasena?'}
             </a>
           </div>
         )}
