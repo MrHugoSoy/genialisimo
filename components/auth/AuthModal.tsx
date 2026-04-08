@@ -59,7 +59,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
     const { error } = await signUp(regEmail, regPass, regUser, selectedAvatar)
     setLoading(false)
     if (error) { toast('❌', error.message); return }
-    toast('🚀', `¡Cuenta creada! Bienvenido, ${regUser}!`)
+    toast('🚀', `Cuenta creada! Bienvenido, ${regUser}!`)
     onClose()
   }
 
@@ -78,7 +78,6 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
           <X size={16} />
         </button>
 
-        {/* Tabs */}
         <div className="flex gap-1 bg-surface2 rounded-xl p-1 mb-6">
           {(['login', 'register'] as const).map(t => (
             <button
@@ -94,7 +93,6 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
           ))}
         </div>
 
-        {/* LOGIN */}
         {tab === 'login' && (
           <div className="space-y-4">
             <button
@@ -117,7 +115,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
             <div className="relative">
               <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
               <input
-                type={showPass ? 'text' : 'password'} placeholder="Contraseña"
+                type={showPass ? 'text' : 'password'} placeholder="Contrasena"
                 value={loginPass} onChange={e => setLoginPass(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLogin()}
                 className="w-full pl-9 pr-10 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
@@ -130,19 +128,18 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               onClick={handleLogin} disabled={loading}
               className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50 mt-2"
             >
-              {loading ? 'ENTRANDO...' : 'ENTRAR →'}
+              {loading ? 'ENTRANDO...' : 'ENTRAR'}
             </button>
             
               href="/reset-password"
               onClick={onClose}
               className="block text-center text-xs text-muted hover:text-accent transition-colors"
             >
-              ¿Olvidaste tu contraseña?
+              Olvidaste tu contrasena?
             </a>
           </div>
         )}
 
-        {/* REGISTER */}
         {tab === 'register' && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
@@ -175,7 +172,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               <div className="relative">
                 <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                 <input
-                  type={showPass ? 'text' : 'password'} placeholder="Contraseña (mín. 6 chars)"
+                  type={showPass ? 'text' : 'password'} placeholder="Contrasena (min. 6 chars)"
                   value={regPass} onChange={e => setRegPass(e.target.value)}
                   className="w-full pl-9 pr-10 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
                 />
@@ -218,7 +215,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               onClick={handleRegister} disabled={loading}
               className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50"
             >
-              {loading ? 'CREANDO...' : 'CREAR CUENTA 🚀'}
+              {loading ? 'CREANDO...' : 'CREAR CUENTA'}
             </button>
           </div>
         )}
