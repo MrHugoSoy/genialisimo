@@ -33,6 +33,13 @@ export function Topbar() {
     router.push('/create')
   }
 
+  function handleSearch(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' && search.trim()) {
+      router.push(`/search?q=${encodeURIComponent(search.trim())}`)
+      setSearch('')
+    }
+  }
+
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-40 h-14 flex items-center gap-4 px-4 bg-bg/90 backdrop-blur-xl border-b border-border">
@@ -46,9 +53,10 @@ export function Topbar() {
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" strokeWidth={2} />
           <input
             type="text"
-            placeholder="Buscar memes..."
+            placeholder="Buscar memes... (Enter)"
             value={search}
             onChange={e => setSearch(e.target.value)}
+            onKeyDown={handleSearch}
             className="w-full pl-8 pr-4 py-2 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
           />
         </div>
