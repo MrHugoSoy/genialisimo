@@ -43,12 +43,10 @@ export function Topbar() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-40 h-14 flex items-center gap-4 px-4 bg-bg/90 backdrop-blur-xl border-b border-border">
-        {/* Logo */}
         <Link href="/" className="font-bebas text-2xl tracking-widest text-accent shrink-0" style={{ textShadow: '0 0 20px rgba(255,70,84,0.4)' }}>
           Geniali<span className="text-accent2">simo</span>
         </Link>
 
-        {/* Search */}
         <div className="relative flex-1 max-w-xs hidden sm:block">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" strokeWidth={2} />
           <input
@@ -61,31 +59,25 @@ export function Topbar() {
           />
         </div>
 
-        {/* Nav tabs */}
         <nav className="hidden md:flex gap-1 ml-auto">
           {NAV.map(({ label, href, icon: Icon }) => (
             <Link
               key={href} href={href}
               className={clsx(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all',
-                pathname === href
-                  ? 'bg-accent text-white'
-                  : 'text-muted hover:text-white hover:bg-surface2'
+                pathname === href ? 'bg-accent text-white' : 'text-muted hover:text-white hover:bg-surface2'
               )}
             >
               <Icon size={13} strokeWidth={2.5} />
               {label}
             </Link>
           ))}
-          {/* Siguiendo — solo logueados */}
           {user && (
             <Link
               href="/following"
               className={clsx(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all',
-                pathname === '/following'
-                  ? 'bg-accent2 text-black'
-                  : 'text-muted hover:text-white hover:bg-surface2'
+                pathname === '/following' ? 'bg-accent2 text-black' : 'text-muted hover:text-white hover:bg-surface2'
               )}
             >
               <Users size={13} strokeWidth={2.5} />
@@ -94,7 +86,6 @@ export function Topbar() {
           )}
         </nav>
 
-        {/* Auth zone */}
         <div className="flex items-center gap-2 ml-auto md:ml-0 shrink-0">
           {user ? (
             <>
