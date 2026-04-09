@@ -21,9 +21,9 @@ function NotifIcon({ type }: { type: string }) {
 function NotifText({ notif }: { notif: Notification }) {
   const user = notif.from_profile?.username ?? 'alguien'
   const title = notif.post?.title ? `"${notif.post.title.slice(0, 30)}${notif.post.title.length > 30 ? '...' : ''}"` : 'tu post'
-  if (notif.type === 'reply') return <span><b>{user}</b> respondió tu comentario en {title}</span>
-  if (notif.type === 'comment') return <span><b>{user}</b> comentó en {title}</span>
-  return <span><b>{user}</b> interactuó con {title}</span>
+  if (notif.type === 'reply') return <span><b>{user}</b> respondio tu comentario en {title}</span>
+  if (notif.type === 'comment') return <span><b>{user}</b> comento en {title}</span>
+  return <span><b>{user}</b> interactuo con {title}</span>
 }
 
 interface NotificationPanelProps {
@@ -55,7 +55,7 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-full mt-2 w-80 bg-surface border border-border rounded-xl shadow-2xl z-50 animate-popIn overflow-hidden"
+      className="fixed right-2 top-16 w-[calc(100vw-16px)] max-w-sm bg-surface border border-border rounded-xl shadow-2xl z-50 animate-popIn overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
@@ -73,7 +73,7 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
             onClick={markAllRead}
             className="flex items-center gap-1 text-[11px] text-muted hover:text-accent2 transition-colors font-mono"
           >
-            <CheckCheck size={12} /> Marcar leídas
+            <CheckCheck size={12} /> Marcar leidas
           </button>
         )}
       </div>
@@ -110,11 +110,9 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
               !notif.read && 'bg-accent/5'
             )}
           >
-            {/* Avatar */}
             <div className="w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center text-sm shrink-0">
               {notif.from_profile?.avatar_emoji ?? '😐'}
             </div>
-            {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-0.5">
                 <NotifIcon type={notif.type} />
@@ -138,10 +136,10 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
 export function NotificationBell() {
   const { unreadCount } = useNotifications()
   return (
-    <div className="relative">
+    <div className="relative w-5 h-5 flex items-center justify-center">
       <Bell size={18} strokeWidth={2} />
       {unreadCount > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-accent text-white text-[9px] font-bold rounded-full flex items-center justify-center font-mono">
+        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-accent text-white text-[8px] font-bold rounded-full flex items-center justify-center font-mono leading-none">
           {unreadCount > 9 ? '9+' : unreadCount}
         </span>
       )}
