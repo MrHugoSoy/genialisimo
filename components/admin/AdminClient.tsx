@@ -176,7 +176,7 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
                       ))}
                     </div>
                   </div>
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex gap-2 shrink-0 items-center">
                     <a href={`/post/${post.id}`} target="_blank" className="p-2 bg-surface2 hover:bg-surface border border-border rounded-lg text-muted hover:text-white transition-colors">
                       <Eye size={14} />
                     </a>
