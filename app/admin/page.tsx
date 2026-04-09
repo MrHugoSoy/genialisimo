@@ -15,14 +15,21 @@ export default async function AdminPage() {
 
   if (profile?.role !== 'admin') redirect('/')
 
-  const { data: reports } = await supabase
+  const { data: reports, error } = await supabase
     .from('reports')
     .select(`
-      *,
-      post:posts!reports_post_id_fkey(id, title, image_url, user_id),
-      reporter:profiles!reports_user_id_fkey(username, avatar_emoji)
+      id,
+      reason,
+      created_at,
+      post_id,
+      user_id,
+      post:posts(id, title, image_url, user_id),
+      reporter:profiles(username, avatar_emoji)
     `)
     .order('created_at', { ascending: false })
+
+  console.log('reports:', JSON.stringify(reports, null, 2))
+  console.log('error:', error)
 
   return <AdminClient reports={reports ?? []} />
 }
