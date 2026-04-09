@@ -25,16 +25,16 @@ export function MobileNav() {
           key={href}
           href={href}
           className={clsx(
-            'flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold uppercase tracking-wide transition-colors',
+            'flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[9px] font-bold uppercase tracking-wide transition-colors min-w-0',
             pathname === href ? 'text-accent' : 'text-muted hover:text-white'
           )}
         >
           <Icon
-            size={20}
+            size={18}
             strokeWidth={pathname === href ? 2.5 : 1.8}
-            className="transition-all"
+            className="transition-all shrink-0"
           />
-          {label}
+          <span className="truncate w-full text-center">{label}</span>
         </Link>
       ))}
     </nav>
