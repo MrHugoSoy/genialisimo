@@ -57,7 +57,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
 
   async function handleRegister() {
     if (!regName || !regUser || !regEmail || !regPass) { toast('⚠️', 'Completa todos los campos'); return }
-    if (!/^[a-z0-9_]{3,20}$/i.test(regUser)) { toast('⚠️', 'Usuario: 3-20 chars sin espacios'); return }
+    if (!/^[a-z0-9_]{3,20}$/.test(regUser)) { toast('⚠️', 'Usuario: 3-20 chars, solo letras, numeros y _'); return }
     if (regPass.length < 6) { toast('⚠️', 'Contrasena minimo 6 caracteres'); return }
     setLoading(true)
     const { error } = await signUp(regEmail, regPass, regUser, selectedAvatar)
@@ -140,11 +140,11 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
               {loading ? 'ENTRANDO...' : 'ENTRAR'}
             </button>
             
-             <a href="/reset-password"
+              href="/reset-password"
               onClick={onClose}
               className="block text-center text-xs text-muted hover:text-accent transition-colors"
             >
-              ¿Olvidaste tu contraseña?
+              Olvidaste tu contrasena?
             </a>
           </div>
         )}
@@ -168,7 +168,8 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
                   type="text"
                   placeholder="username"
                   value={regUser}
-                  onChange={e => setRegUser(e.target.value)}
+                  onChange={e => setRegUser(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                  maxLength={20}
                   className="w-full pl-7 pr-3 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
                 />
               </div>
