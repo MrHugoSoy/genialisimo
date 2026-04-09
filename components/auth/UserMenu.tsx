@@ -42,34 +42,34 @@ export function UserMenu() {
   ]
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       {/* Notification bell */}
       <div ref={notifRef} className="relative">
         <button
           onClick={() => { setNotifOpen(o => !o); setMenuOpen(false) }}
-          className="relative p-2 text-muted hover:text-white hover:bg-surface2 rounded-lg transition-colors"
+          className="relative p-1.5 text-muted hover:text-white hover:bg-surface2 rounded-lg transition-colors"
         >
           <NotificationBell />
         </button>
         <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
       </div>
 
-      {/* User pill */}
+      {/* User pill — solo avatar en mobile, avatar + nombre en desktop */}
       <div ref={menuRef} className="relative">
         <button
           onClick={() => { setMenuOpen(o => !o); setNotifOpen(false) }}
-          className="flex items-center gap-2 bg-surface2 border border-border rounded-full pl-1 pr-3 py-1 hover:border-accent transition-colors"
+          className="flex items-center gap-1.5 bg-surface2 border border-border rounded-full pl-1 py-1 hover:border-accent transition-colors pr-1.5 md:pr-3"
         >
-          <div className="w-7 h-7 rounded-full bg-surface border-2 border-accent flex items-center justify-center text-base leading-none">
+          <div className="w-7 h-7 rounded-full bg-surface border-2 border-accent flex items-center justify-center text-base leading-none shrink-0">
             {profile.avatar_emoji}
           </div>
-          <span className="text-sm font-bold max-w-[90px] truncate">{profile.username}</span>
-          <ChevronDown size={12} className={clsx('text-muted transition-transform', menuOpen && 'rotate-180')} />
+          {/* Username solo en desktop */}
+          <span className="hidden md:block text-sm font-bold max-w-[90px] truncate">{profile.username}</span>
+          <ChevronDown size={12} className={clsx('hidden md:block text-muted transition-transform', menuOpen && 'rotate-180')} />
         </button>
 
         {menuOpen && (
           <div className="absolute right-0 top-full mt-2 w-56 bg-surface border border-border rounded-xl p-2 shadow-2xl z-50 animate-popIn">
-            {/* Header */}
             <div className="px-3 py-3 border-b border-border mb-2">
               <div
                 className="flex items-center gap-2 mb-2 cursor-pointer"
@@ -93,7 +93,6 @@ export function UserMenu() {
               </div>
             </div>
 
-            {/* Admin link — solo visible para admins */}
             {isAdmin && (
               <button
                 onClick={() => { router.push('/admin'); setMenuOpen(false) }}
