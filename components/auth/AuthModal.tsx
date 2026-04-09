@@ -139,11 +139,12 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
             >
               {loading ? 'ENTRANDO...' : 'ENTRAR'}
             </button>
-            <a>
-               href="/reset-password"
+           
+              <a href="/reset-password"
               onClick={() => onClose()}
-              className="block text-center text-xs text-muted hover:text-accent transition-colors"
-              Olvidaste tu contrasena?
+              className="block text-center text-xs text-muted hover:text-accent transition-colors" > 
+              ¿Olvidaste tu contraseña?
+              
             </a>
           </div>
         )}
