@@ -11,9 +11,7 @@ export const metadata: Metadata = {
   description: 'El mejor feed de memes, fails y contenido viral en español. Vota, comenta y comparte lo mejor de internet.',
   keywords: 'memes, viral, fails, humor, español, latino, gifs',
   icons: {
-    icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-    ],
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
     apple: '/favicon.svg',
   },
   openGraph: {
@@ -53,15 +51,15 @@ const schemaOrg = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" style={{ overflowX: 'hidden' }}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
         />
       </head>
-      <body className="pb-16 md:pb-0">
+      <body className="pb-16 md:pb-0" style={{ overflowX: 'hidden', maxWidth: '100vw' }}>
         <AuthProvider>
           <Toaster>
             <Analytics />
