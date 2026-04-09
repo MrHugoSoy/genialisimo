@@ -1,22 +1,22 @@
 'use client'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { Flame, TrendingUp, Sparkles, Crown, PlusCircle } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { Flame, TrendingUp, Sparkles, Crown, PlusCircle, Users } from 'lucide-react'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import clsx from 'clsx'
-
-const NAV = [
-  { label: 'Hot',    href: '/',         icon: Flame },
-  { label: 'Trend',  href: '/trending', icon: TrendingUp },
-  { label: 'Fresh',  href: '/fresh',    icon: Sparkles },
-  { label: 'Top',    href: '/top',      icon: Crown },
-  { label: 'Crear',  href: '/create',   icon: PlusCircle },
-]
 
 export function MobileNav() {
   const pathname = usePathname()
   const { user } = useAuthContext()
-  const router = useRouter()
+
+  const NAV = [
+    { label: 'Hot',    href: '/',          icon: Flame },
+    { label: 'Trend',  href: '/trending',  icon: TrendingUp },
+    { label: 'Fresh',  href: '/fresh',     icon: Sparkles },
+    { label: 'Top',    href: '/top',       icon: Crown },
+    ...(user ? [{ label: 'Siguiendo', href: '/following', icon: Users }] : []),
+    { label: 'Crear',  href: '/create',    icon: PlusCircle },
+  ]
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 flex md:hidden bg-bg/95 backdrop-blur-xl border-t border-border">
