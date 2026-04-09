@@ -61,12 +61,11 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     setLoading(true)
     const currentPage = reset ? 0 : page
 
-    // Feed de siguiendo — query especial
+    // Feed de siguiendo
     if (feedType === 'following') {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoading(false); setPosts([]); return }
 
-      // Obtener IDs de usuarios que sigo
       const { data: follows } = await supabase
         .from('follows')
         .select('following_id')
@@ -103,15 +102,30 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
       .from('posts')
       .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1)
+
     if (category) query = query.eq('category', category)
     if (tag) query = query.contains('tags', [tag])
-    if (feedType === 'hot' || feedType === 'top') {
+
+    if (feedType === 'top') {
+      // Top — mas votos de todos los tiempos
       query = query.order('votes', { ascending: false })
+    } else if (feedType === 'hot') {
+      // Hot — posts de las ultimas 24h con mas votos
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+      query = query
+        .gte('created_at', yesterday)
+        .order('votes', { ascending: false })
     } else if (feedType === 'trending') {
-      query = query.order('comment_count', { ascending: false })
+      // Trending — posts de la ultima semana con mas comentarios
+      const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      query = query
+        .gte('created_at', lastWeek)
+        .order('comment_count', { ascending: false })
     } else {
+      // Fresh — mas recientes
       query = query.order('created_at', { ascending: false })
     }
+
     const { data, error } = await query
     if (!error && data) {
       setPosts(prev => reset ? data : [...prev, ...data])
