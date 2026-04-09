@@ -23,12 +23,11 @@ export default async function AdminPage() {
       created_at,
       post_id,
       user_id,
-      post:posts(id, title, image_url, user_id),
-      reporter:profiles(username, avatar_emoji)
+      post:posts!reports_post_id_fkey(id, title, image_url, user_id),
+      reporter:profiles!reports_user_id_fkey(username, avatar_emoji)
     `)
     .order('created_at', { ascending: false })
 
-  // Normalizar arrays a objetos simples
   const reports = (rawReports ?? []).map((r: any) => ({
     ...r,
     post: Array.isArray(r.post) ? r.post[0] ?? null : r.post,
