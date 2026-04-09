@@ -10,13 +10,15 @@ export function MobileNav() {
   const { user } = useAuthContext()
 
   const NAV = [
-    { label: 'Hot',    href: '/',          icon: Flame },
-    { label: 'Trend',  href: '/trending',  icon: TrendingUp },
-    { label: 'Fresh',  href: '/fresh',     icon: Sparkles },
-    { label: 'Top',    href: '/top',       icon: Crown },
+    { label: 'Hot',       href: '/',          icon: Flame },
+    { label: 'Trend',     href: '/trending',  icon: TrendingUp },
+    { label: 'Fresh',     href: '/fresh',     icon: Sparkles },
+    { label: 'Top',       href: '/top',       icon: Crown },
     ...(user ? [{ label: 'Siguiendo', href: '/following', icon: Users }] : []),
-    { label: 'Crear',  href: '/create',    icon: PlusCircle },
+    { label: 'Crear',     href: '/create',    icon: PlusCircle },
   ]
+
+  const compact = NAV.length >= 6
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 flex md:hidden bg-bg/95 backdrop-blur-xl border-t border-border">
@@ -25,16 +27,17 @@ export function MobileNav() {
           key={href}
           href={href}
           className={clsx(
-            'flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[9px] font-bold uppercase tracking-wide transition-colors min-w-0',
+            'flex-1 flex flex-col items-center justify-center transition-colors',
+            compact ? 'gap-0 py-3' : 'gap-1 py-3 text-[10px] font-bold uppercase tracking-wide',
             pathname === href ? 'text-accent' : 'text-muted hover:text-white'
           )}
         >
           <Icon
-            size={18}
+            size={compact ? 22 : 20}
             strokeWidth={pathname === href ? 2.5 : 1.8}
-            className="transition-all shrink-0"
+            className="transition-all"
           />
-          <span className="truncate w-full text-center">{label}</span>
+          {!compact && <span>{label}</span>}
         </Link>
       ))}
     </nav>
