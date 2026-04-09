@@ -8,15 +8,16 @@ import { RightSidebar } from '@/components/layout/RightSidebar'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { SkeletonCard } from '@/components/ui/SkeletonCard'
 import { Category } from '@/types'
-import { Tag } from 'lucide-react'
+import { Tag, Users } from 'lucide-react'
 
-type FeedType = 'hot' | 'trending' | 'fresh' | 'top'
+type FeedType = 'hot' | 'trending' | 'fresh' | 'top' | 'following'
 
 const FEED_TITLES: Record<FeedType, string> = {
-  hot:      'HOT 🔥',
-  trending: 'TRENDING 📈',
-  fresh:    'FRESH ✨',
-  top:      'TOP 👑',
+  hot:       'HOT 🔥',
+  trending:  'TRENDING 📈',
+  fresh:     'FRESH ✨',
+  top:       'TOP 👑',
+  following: 'SIGUIENDO 👥',
 }
 
 export function FeedPage({ feedType }: { feedType: FeedType }) {
@@ -70,7 +71,7 @@ export function FeedPage({ feedType }: { feedType: FeedType }) {
             )}
             {category && (
               <span className="text-[11px] font-mono text-fresh bg-fresh/10 border border-fresh/30 px-3 py-1 rounded-full">
-                categoría activa
+                categoria activa
               </span>
             )}
           </div>
@@ -99,14 +100,23 @@ export function FeedPage({ feedType }: { feedType: FeedType }) {
             <p className="text-center text-muted text-sm font-mono py-8">— fin del feed —</p>
           )}
 
-          {!loading && posts.length === 0 && (
+          {/* Empty states */}
+          {!loading && posts.length === 0 && feedType === 'following' && (
+            <div className="text-center py-20 text-muted">
+              <p className="text-5xl mb-4">👥</p>
+              <p className="font-bebas text-2xl tracking-wide">No sigues a nadie todavia</p>
+              <p className="text-sm mt-2">Ve al perfil de alguien y dale Seguir</p>
+            </div>
+          )}
+
+          {!loading && posts.length === 0 && feedType !== 'following' && (
             <div className="text-center py-20 text-muted">
               <p className="text-5xl mb-4">{tag ? '🏷️' : '😶'}</p>
               <p className="font-bebas text-2xl tracking-wide">
-                {tag ? `Sin posts con #${tag}` : 'Nada por aquí todavía'}
+                {tag ? `Sin posts con #${tag}` : 'Nada por aqui todavia'}
               </p>
               <p className="text-sm mt-2">
-                {tag ? 'Sé el primero en publicar con este tag' : '¡Sé el primero en publicar algo!'}
+                {tag ? 'Se el primero en publicar con este tag' : 'Se el primero en publicar algo!'}
               </p>
             </div>
           )}

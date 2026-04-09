@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Post, Category } from '@/types'
 
-type FeedType = 'hot' | 'trending' | 'fresh' | 'top'
+type FeedType = 'hot' | 'trending' | 'fresh' | 'top' | 'following'
 
 async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
@@ -60,6 +60,45 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
   const fetchPosts = useCallback(async (reset = false) => {
     setLoading(true)
     const currentPage = reset ? 0 : page
+
+    // Feed de siguiendo — query especial
+    if (feedType === 'following') {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setLoading(false); setPosts([]); return }
+
+      // Obtener IDs de usuarios que sigo
+      const { data: follows } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', user.id)
+
+      if (!follows || follows.length === 0) {
+        setPosts([])
+        setHasMore(false)
+        setLoading(false)
+        return
+      }
+
+      const followingIds = follows.map(f => f.following_id)
+
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
+        .in('user_id', followingIds)
+        .order('created_at', { ascending: false })
+        .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1)
+
+      if (!error && data) {
+        setPosts(prev => reset ? data : [...prev, ...data])
+        setHasMore(data.length === PAGE_SIZE)
+        if (reset) setPage(1)
+        else setPage(p => p + 1)
+      }
+      setLoading(false)
+      return
+    }
+
+    // Feed normal
     let query = supabase
       .from('posts')
       .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
@@ -114,7 +153,6 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     let image_url: string | null = null
     let video_url: string | null = null
 
-    // Procesar video URL
     if (videoUrl) {
       const youtubeId = extractYoutubeId(videoUrl)
       if (youtubeId) {
@@ -122,7 +160,6 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
       }
     }
 
-    // Procesar imagen
     if (imageFile) {
       const fileToUpload = imageFile.type === 'image/gif'
         ? imageFile

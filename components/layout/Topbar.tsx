@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Search, Flame, TrendingUp, Sparkles, Crown, Plus } from 'lucide-react'
+import { Search, Flame, TrendingUp, Sparkles, Crown, Plus, Users } from 'lucide-react'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { AuthModal } from '@/components/auth/AuthModal'
@@ -77,6 +77,21 @@ export function Topbar() {
               {label}
             </Link>
           ))}
+          {/* Siguiendo — solo logueados */}
+          {user && (
+            <Link
+              href="/following"
+              className={clsx(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all',
+                pathname === '/following'
+                  ? 'bg-accent2 text-black'
+                  : 'text-muted hover:text-white hover:bg-surface2'
+              )}
+            >
+              <Users size={13} strokeWidth={2.5} />
+              Siguiendo
+            </Link>
+          )}
         </nav>
 
         {/* Auth zone */}
