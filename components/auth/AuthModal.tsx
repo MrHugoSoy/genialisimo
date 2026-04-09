@@ -19,6 +19,8 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0])
+  const [registered, setRegistered] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
 
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPass, setLoginPass] = useState('')
@@ -29,7 +31,7 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
   const [regPass, setRegPass] = useState('')
 
   useEffect(() => {
-    if (isOpen) setTab(defaultTab)
+    if (isOpen) { setTab(defaultTab); setRegistered(false) }
   }, [isOpen, defaultTab])
 
   const passStrength = (p: string) => {
@@ -63,8 +65,8 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
     const { error } = await signUp(regEmail, regPass, regUser, selectedAvatar)
     setLoading(false)
     if (error) { toast('❌', error.message); return }
-    toast('🚀', 'Cuenta creada! Bienvenido, ' + regUser)
-    onClose()
+    setRegisteredEmail(regEmail)
+    setRegistered(true)
   }
 
   if (!isOpen) return null
@@ -82,161 +84,184 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
           <X size={16} />
         </button>
 
-        <div className="flex gap-1 bg-surface2 rounded-xl p-1 mb-6">
-          {(['login', 'register'] as const).map(t => (
+        {/* Pantalla de verificacion de email */}
+        {registered ? (
+          <div className="text-center py-4">
+            <p className="text-5xl mb-4">📧</p>
+            <h2 className="font-bebas text-2xl tracking-wide mb-2">Verifica tu email</h2>
+            <p className="text-muted text-sm mb-2">
+              Enviamos un link de verificacion a:
+            </p>
+            <p className="font-bold text-white mb-4">{registeredEmail}</p>
+            <p className="text-muted text-xs mb-6">
+              Revisa tu bandeja de entrada y spam. Debes verificar tu cuenta antes de iniciar sesion.
+            </p>
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={clsx(
-                'flex-1 py-2 rounded-lg font-bebas text-lg tracking-widest transition-all',
-                tab === t ? 'bg-accent text-white' : 'text-muted hover:text-white'
-              )}
+              onClick={onClose}
+              className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all"
             >
-              {t === 'login' ? 'ENTRAR' : 'REGISTRARSE'}
+              ENTENDIDO
             </button>
-          ))}
-        </div>
-
-        {tab === 'login' && (
-          <div className="space-y-4">
-            <button
-              onClick={signInWithGoogle}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-surface2 border border-border rounded-lg text-sm font-semibold hover:border-accent transition-colors"
-            >
-              🌐 Continuar con Google
-            </button>
-            <div className="flex items-center gap-3 text-muted text-xs">
-              <div className="flex-1 h-px bg-border" /> o con email <div className="flex-1 h-px bg-border" />
-            </div>
-            <div className="relative">
-              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-              <input
-                type="text"
-                placeholder="Email o usuario"
-                value={loginEmail}
-                onChange={e => setLoginEmail(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
-              />
-            </div>
-            <div className="relative">
-              <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-              <input
-                type={showPass ? 'text' : 'password'}
-                placeholder="Contrasena"
-                value={loginPass}
-                onChange={e => setLoginPass(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                className="w-full pl-9 pr-10 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
-              />
-              <button onClick={() => setShowPass(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
-                {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
-            </div>
-            <button
-              onClick={handleLogin}
-              disabled={loading}
-              className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50 mt-2"
-            >
-              {loading ? 'ENTRANDO...' : 'ENTRAR'}
-            </button>
-           
-              <a href="/reset-password"
-              onClick={() => onClose()}
-              className="block text-center text-xs text-muted hover:text-accent transition-colors" > 
-              ¿Olvidaste tu contraseña?
-              
-            </a>
           </div>
-        )}
-
-        {tab === 'register' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="relative">
-                <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-                <input
-                  type="text"
-                  placeholder="Nombre"
-                  value={regName}
-                  onChange={e => setRegName(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
-                />
-              </div>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">@</span>
-                <input
-                  type="text"
-                  placeholder="username"
-                  value={regUser}
-                  onChange={e => setRegUser(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                  maxLength={20}
-                  className="w-full pl-7 pr-3 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
-                />
-              </div>
-            </div>
-            <div className="relative">
-              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-              <input
-                type="email"
-                placeholder="tu@email.com"
-                value={regEmail}
-                onChange={e => setRegEmail(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
-              />
-            </div>
-            <div>
-              <div className="relative">
-                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  placeholder="Contrasena (min. 6 chars)"
-                  value={regPass}
-                  onChange={e => setRegPass(e.target.value)}
-                  className="w-full pl-9 pr-10 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
-                />
-                <button onClick={() => setShowPass(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
-                  {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+        ) : (
+          <>
+            <div className="flex gap-1 bg-surface2 rounded-xl p-1 mb-6">
+              {(['login', 'register'] as const).map(t => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={clsx(
+                    'flex-1 py-2 rounded-lg font-bebas text-lg tracking-widest transition-all',
+                    tab === t ? 'bg-accent text-white' : 'text-muted hover:text-white'
+                  )}
+                >
+                  {t === 'login' ? 'ENTRAR' : 'REGISTRARSE'}
                 </button>
+              ))}
+            </div>
+
+            {tab === 'login' && (
+              <div className="space-y-4">
+                <button
+                  onClick={signInWithGoogle}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-surface2 border border-border rounded-lg text-sm font-semibold hover:border-accent transition-colors"
+                >
+                  🌐 Continuar con Google
+                </button>
+                <div className="flex items-center gap-3 text-muted text-xs">
+                  <div className="flex-1 h-px bg-border" /> o con email <div className="flex-1 h-px bg-border" />
+                </div>
+                <div className="relative">
+                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                  <input
+                    type="text"
+                    placeholder="Email o usuario"
+                    value={loginEmail}
+                    onChange={e => setLoginEmail(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    placeholder="Contrasena"
+                    value={loginPass}
+                    onChange={e => setLoginPass(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                    className="w-full pl-9 pr-10 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
+                  />
+                  <button onClick={() => setShowPass(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
+                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+                <button
+                  onClick={handleLogin}
+                  disabled={loading}
+                  className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50 mt-2"
+                >
+                  {loading ? 'ENTRANDO...' : 'ENTRAR'}
+                </button>
+                
+                <a  href="/reset-password"
+                  onClick={() => onClose()}
+                  className="block text-center text-xs text-muted hover:text-accent transition-colors"
+                >
+                  Olvidaste tu contrasena?
+                </a>
               </div>
-              {regPass && (
-                <div className="mt-1.5">
-                  <div className="h-1 bg-border rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{ width: `${strength * 20}%`, background: strengthColors[strength] }}
+            )}
+
+            {tab === 'register' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="relative">
+                    <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                    <input
+                      type="text"
+                      placeholder="Nombre"
+                      value={regName}
+                      onChange={e => setRegName(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
                     />
                   </div>
-                  <p className="text-[10px] mt-1 font-mono" style={{ color: strengthColors[strength] }}>
-                    {strengthLabels[strength]}
-                  </p>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">@</span>
+                    <input
+                      type="text"
+                      placeholder="username"
+                      value={regUser}
+                      onChange={e => setRegUser(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                      maxLength={20}
+                      className="w-full pl-7 pr-3 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
+                    />
+                  </div>
                 </div>
-              )}
-            </div>
-            <div>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Elige tu avatar</p>
-              <div className="flex flex-wrap gap-2">
-                {AVATARS.map(a => (
-                  <button
-                    key={a}
-                    onClick={() => setSelectedAvatar(a)}
-                    className={clsx(
-                      'w-10 h-10 rounded-full bg-surface2 border-2 text-xl flex items-center justify-center transition-all',
-                      selectedAvatar === a ? 'border-accent scale-110' : 'border-border hover:border-accent/50'
-                    )}
-                  >
-                    {a}
-                  </button>
-                ))}
+                <div className="relative">
+                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                  <input
+                    type="email"
+                    placeholder="tu@email.com"
+                    value={regEmail}
+                    onChange={e => setRegEmail(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
+                  />
+                </div>
+                <div>
+                  <div className="relative">
+                    <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                    <input
+                      type={showPass ? 'text' : 'password'}
+                      placeholder="Contrasena (min. 6 chars)"
+                      value={regPass}
+                      onChange={e => setRegPass(e.target.value)}
+                      className="w-full pl-9 pr-10 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
+                    />
+                    <button onClick={() => setShowPass(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
+                      {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                  {regPass && (
+                    <div className="mt-1.5">
+                      <div className="h-1 bg-border rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ width: `${strength * 20}%`, background: strengthColors[strength] }}
+                        />
+                      </div>
+                      <p className="text-[10px] mt-1 font-mono" style={{ color: strengthColors[strength] }}>
+                        {strengthLabels[strength]}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Elige tu avatar</p>
+                  <div className="flex flex-wrap gap-2">
+                    {AVATARS.map(a => (
+                      <button
+                        key={a}
+                        onClick={() => setSelectedAvatar(a)}
+                        className={clsx(
+                          'w-10 h-10 rounded-full bg-surface2 border-2 text-xl flex items-center justify-center transition-all',
+                          selectedAvatar === a ? 'border-accent scale-110' : 'border-border hover:border-accent/50'
+                        )}
+                      >
+                        {a}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  onClick={handleRegister}
+                  disabled={loading}
+                  className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50"
+                >
+                  {loading ? 'CREANDO...' : 'CREAR CUENTA'}
+                </button>
               </div>
-            </div>
-            <button
-              onClick={handleRegister}
-              disabled={loading}
-              className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50"
-            >
-              {loading ? 'CREANDO...' : 'CREAR CUENTA'}
-            </button>
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>
