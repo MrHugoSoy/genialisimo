@@ -5,6 +5,7 @@ import { MobileNav } from '@/components/layout/MobileNav'
 import { Toaster } from '@/components/ui/Toaster'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import { Analytics } from '@/components/ui/Analytics'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'Genialisimo 🔥 — Memes y contenido viral en español',
@@ -83,6 +84,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </footer>
           </Toaster>
         </AuthProvider>
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8458170443836025"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )
