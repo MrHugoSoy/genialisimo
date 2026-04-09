@@ -1,10 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useToast } from '@/components/ui/Toaster'
 import { Flag, Trash2, Check, Eye, Shield } from 'lucide-react'
 import Image from 'next/image'
-import { useEffect } from 'react'
 
 interface Report {
   id: number
@@ -36,7 +35,6 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  // Fetch reports directly from client to bypass SSR issues
   useEffect(() => {
     fetchReports()
   }, [])
@@ -45,13 +43,7 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
     const supabase = createClient()
     const { data, error } = await supabase
       .from('reports')
-      .select(`
-        id,
-        reason,
-        created_at,
-        post_id,
-        user_id
-      `)
+      .select('id, reason, created_at, post_id, user_id')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -60,7 +52,6 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
       return
     }
 
-    // Fetch posts and profiles separately
     const reportsWithData = await Promise.all((data ?? []).map(async (r) => {
       const { data: post } = await supabase
         .from('posts')
@@ -81,20 +72,20 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
     setLoading(false)
   }
 
-  async function handleDeletePost(reportId: number, postId: number) {
+  async function handleDeletePost(postId: number) {
     if (!confirm('Borrar este post permanentemente?')) return
     const supabase = createClient()
     await supabase.from('posts').delete().eq('id', postId)
     await supabase.from('reports').delete().eq('post_id', postId)
-    setReports(prev => prev.filter(r => r.post?.id !== postId))
+    setReports(prev => prev.filter(r => r.post_id !== postId))
     toast('🗑️', 'Post borrado')
   }
 
-  async function handleDismiss(reportId: number) {
+  async function handleDismiss(postId: number) {
     const supabase = createClient()
-    await supabase.from('reports').delete().eq('id', reportId)
-    setReports(prev => prev.filter(r => r.id !== reportId))
-    toast('✅', 'Reporte descartado')
+    await supabase.from('reports').delete().eq('post_id', postId)
+    setReports(prev => prev.filter(r => r.post_id !== postId))
+    toast('✅', 'Reportes descartados')
   }
 
   const grouped = reports.reduce((acc, r) => {
@@ -118,7 +109,6 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
         </div>
       </div>
 
-      {/* Stats */}
       {!loading && (
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
@@ -160,7 +150,13 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
                 <div className="flex gap-4 p-4 border-b border-border">
                   {post.image_url && (
                     <div className="w-20 h-20 rounded-lg overflow-hidden bg-surface2 shrink-0">
-                      <Image src={post.image_url} alt={post.title} width={80} height={80} className="w-full h-full object-cover" />
+                      <Image
+                        src={post.image_url}
+                        alt={post.title}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
@@ -170,20 +166,33 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
                     </p>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {[...new Set(postReports.map(r => r.reason))].map(reason => (
-                        <span key={reason} className="text-[10px] px-2 py-0.5 bg-accent/10 border border-accent/30 text-accent rounded-full font-mono">
+                        <span
+                          key={reason}
+                          className="text-[10px] px-2 py-0.5 bg-accent/10 border border-accent/30 text-accent rounded-full font-mono"
+                        >
                           {reason}
                         </span>
                       ))}
                     </div>
                   </div>
                   <div className="flex gap-2 shrink-0 items-center">
-                    <a href={`/post/${post.id}`} target="_blank" className="p-2 bg-surface2 hover:bg-surface border border-border rounded-lg text-muted hover:text-white transition-colors">
+                    <a
+                      href={`/post/${post.id}`}
+                      target="_blank"
+                      className="p-2 bg-surface2 hover:bg-surface border border-border rounded-lg text-muted hover:text-white transition-colors"
+                    >
                       <Eye size={14} />
                     </a>
-                    <button onClick={() => handleDismiss(postReports[0].id)} className="p-2 bg-surface2 hover:bg-surface border border-border rounded-lg text-muted hover:text-fresh transition-colors">
+                    <button
+                      onClick={() => handleDismiss(post.id)}
+                      className="p-2 bg-surface2 hover:bg-surface border border-border rounded-lg text-muted hover:text-fresh transition-colors"
+                    >
                       <Check size={14} />
                     </button>
-                    <button onClick={() => handleDeletePost(postReports[0].id, post.id)} className="p-2 bg-accent/10 hover:bg-accent/20 border border-accent/30 rounded-lg text-accent hover:text-white transition-colors">
+                    <button
+                      onClick={() => handleDeletePost(post.id)}
+                      className="p-2 bg-accent/10 hover:bg-accent/20 border border-accent/30 rounded-lg text-accent hover:text-white transition-colors"
+                    >
                       <Trash2 size={14} />
                     </button>
                   </div>
