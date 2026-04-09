@@ -15,7 +15,7 @@ export default async function AdminPage() {
 
   if (profile?.role !== 'admin') redirect('/')
 
-  const { data: reports, error } = await supabase
+  const { data: rawReports } = await supabase
     .from('reports')
     .select(`
       id,
@@ -28,8 +28,12 @@ export default async function AdminPage() {
     `)
     .order('created_at', { ascending: false })
 
-  console.log('reports:', JSON.stringify(reports, null, 2))
-  console.log('error:', error)
+  // Normalizar arrays a objetos simples
+  const reports = (rawReports ?? []).map((r: any) => ({
+    ...r,
+    post: Array.isArray(r.post) ? r.post[0] ?? null : r.post,
+    reporter: Array.isArray(r.reporter) ? r.reporter[0] ?? null : r.reporter,
+  }))
 
-  return <AdminClient reports={reports ?? []} />
+  return <AdminClient reports={reports} />
 }
