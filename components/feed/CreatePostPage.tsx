@@ -231,7 +231,7 @@ export function CreatePostPage() {
           )}
 
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {POPULAR_TAGS.slice(0, 12).map(tag => (
+            {POPULAR_TAGS.slice(0, 18).map(tag => (
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
