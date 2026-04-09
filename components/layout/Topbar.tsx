@@ -28,11 +28,6 @@ export function Topbar() {
     setAuthOpen(true)
   }
 
-  function handleUpload() {
-    if (!user) { openAuth('login'); return }
-    router.push('/create')
-  }
-
   function handleSearch(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter' && search.trim()) {
       router.push(`/search?q=${encodeURIComponent(search.trim())}`)
@@ -42,11 +37,14 @@ export function Topbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 h-14 flex items-center gap-4 px-4 bg-bg/90 backdrop-blur-xl border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-40 h-14 flex items-center gap-2 px-3 bg-bg/90 backdrop-blur-xl border-b border-border" style={{ width: '100%', maxWidth: '100vw' }}>
+
+        {/* Logo */}
         <Link href="/" className="font-bebas text-2xl tracking-widest text-accent shrink-0" style={{ textShadow: '0 0 20px rgba(255,70,84,0.4)' }}>
           Geniali<span className="text-accent2">simo</span>
         </Link>
 
+        {/* Search — solo desktop */}
         <div className="relative flex-1 max-w-xs hidden sm:block">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" strokeWidth={2} />
           <input
@@ -59,6 +57,7 @@ export function Topbar() {
           />
         </div>
 
+        {/* Nav — solo desktop */}
         <nav className="hidden md:flex gap-1 ml-auto">
           {NAV.map(({ label, href, icon: Icon }) => (
             <Link
@@ -86,13 +85,15 @@ export function Topbar() {
           )}
         </nav>
 
-        <div className="flex items-center gap-2 ml-auto md:ml-0 shrink-0">
+        {/* Auth zone */}
+        <div className="flex items-center gap-1 ml-auto md:ml-0 shrink-0">
           {user ? (
             <>
               <UserMenu />
+              {/* Botón subir — solo desktop */}
               <button
-                onClick={handleUpload}
-                className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-accent2 text-black font-bebas text-base tracking-wider rounded-lg hover:scale-105 transition-transform"
+                onClick={() => router.push('/create')}
+                className="hidden md:flex items-center gap-1.5 px-4 py-1.5 bg-accent2 text-black font-bebas text-base tracking-wider rounded-lg hover:scale-105 transition-transform"
               >
                 <Plus size={16} strokeWidth={3} /> SUBIR
               </button>
