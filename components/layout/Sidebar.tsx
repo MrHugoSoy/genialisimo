@@ -1,6 +1,6 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Globe, Laugh, Gamepad2, PawPrint, Monitor, Trophy, Skull, Heart, Film } from 'lucide-react'
+import { Globe, Laugh, Gamepad2, PawPrint, Monitor, Trophy, Skull, Heart, Film, Youtube } from 'lucide-react'
 import { CATEGORIES, Category } from '@/types'
 import clsx from 'clsx'
 
@@ -13,6 +13,19 @@ const CATEGORY_ICONS: Record<string, any> = {
   fails:     Skull,
   relatable: Heart,
   movies:    Film,
+  youtube:   Youtube,
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  memes:     '#ff6b35',
+  gaming:    '#7b61ff',
+  animals:   '#00d4aa',
+  tech:      '#378ADD',
+  sports:    '#ffcc00',
+  fails:     '#ff4654',
+  relatable: '#ff69b4',
+  movies:    '#a78bfa',
+  youtube:   '#ff0000',
 }
 
 export function Sidebar() {
@@ -29,10 +42,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Placeholder para reservar espacio en el layout */}
       <div className="w-48 shrink-0 hidden lg:block" />
-
-      {/* Sidebar fijo */}
       <aside className="w-48 shrink-0 hidden lg:block fixed top-20 left-[max(16px,calc(50vw-550px))]">
         <p className="text-[10px] font-mono uppercase tracking-[3px] text-muted mb-3 px-1">Categorias</p>
         <div className="space-y-0.5">
@@ -45,11 +55,17 @@ export function Sidebar() {
                 : 'text-muted hover:text-white hover:bg-surface border-transparent'
             )}
           >
-            <Globe size={15} strokeWidth={current === 'all' ? 2.5 : 1.8} /> Todo
+            <Globe
+              size={15}
+              strokeWidth={current === 'all' ? 2.5 : 1.8}
+              style={{ color: current === 'all' ? '#ffffff' : '#8888a0' }}
+            />
+            Todo
           </button>
           {(Object.entries(CATEGORIES) as [Category, { label: string; emoji: string; color: string }][]).map(([key, cat]) => {
             const Icon = CATEGORY_ICONS[key] ?? Globe
             const isActive = current === key
+            const color = CATEGORY_COLORS[key] ?? cat.color
             return (
               <button
                 key={key}
@@ -64,7 +80,7 @@ export function Sidebar() {
                 <Icon
                   size={15}
                   strokeWidth={isActive ? 2.5 : 1.8}
-                  style={{ color: isActive ? cat.color : undefined }}
+                  style={{ color: isActive ? '#ffffff' : color }}
                 />
                 {cat.label}
               </button>
