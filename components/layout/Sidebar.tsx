@@ -1,6 +1,6 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Globe, Laugh, Gamepad2, PawPrint, Monitor, Trophy, Skull, Heart, Film, Youtube } from 'lucide-react'
+import { Globe, Laugh, Gamepad2, PawPrint, Monitor, Trophy, Skull, Heart, Film, Youtube, Sword, Music, UtensilsCrossed } from 'lucide-react'
 import { CATEGORIES, Category } from '@/types'
 import clsx from 'clsx'
 
@@ -14,6 +14,9 @@ const CATEGORY_ICONS: Record<string, any> = {
   relatable: Heart,
   movies:    Film,
   youtube:   Youtube,
+  anime:     Sword,
+  music:     Music,
+  food:      UtensilsCrossed,
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -26,6 +29,9 @@ const CATEGORY_COLORS: Record<string, string> = {
   relatable: '#ff69b4',
   movies:    '#a78bfa',
   youtube:   '#ff0000',
+  anime:     '#e879f9',
+  music:     '#06b6d4',
+  food:      '#f97316',
 }
 
 export function Sidebar() {
@@ -43,7 +49,7 @@ export function Sidebar() {
   return (
     <>
       <div className="w-48 shrink-0 hidden lg:block" />
-      <aside className="w-48 shrink-0 hidden lg:block fixed top-20 left-[max(16px,calc(50vw-550px))]">
+      <aside className="w-48 shrink-0 hidden lg:block fixed top-20 left-[max(16px,calc(50vw-550px))] overflow-y-auto max-h-[calc(100vh-88px)]">
         <p className="text-[10px] font-mono uppercase tracking-[3px] text-muted mb-3 px-1">Categorias</p>
         <div className="space-y-0.5">
           <button

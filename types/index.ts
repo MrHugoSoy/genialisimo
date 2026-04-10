@@ -1,6 +1,7 @@
 export type Category =
   | 'memes' | 'gaming' | 'animals' | 'tech'
   | 'sports' | 'fails' | 'relatable' | 'movies' | 'youtube'
+  | 'anime' | 'music' | 'food'
 
 export interface Profile {
   id: string
@@ -50,6 +51,9 @@ export const CATEGORIES: Record<Category, { label: string; emoji: string; color:
   relatable: { label: 'Relatable', emoji: '😔', color: '#f59e0b' },
   movies:    { label: 'Peliculas', emoji: '🎬', color: '#ec4899' },
   youtube:   { label: 'YouTube',   emoji: '▶️', color: '#ff0000' },
+  anime:     { label: 'Anime',     emoji: '⚔️', color: '#e879f9' },
+  music:     { label: 'Música',    emoji: '🎵', color: '#06b6d4' },
+  food:      { label: 'Comida',    emoji: '🌮', color: '#f97316' },
 }
 
 export const AVATARS = ['🗿','😈','🤡','👾','🦊','🐸','🤖','💀','🧠','👽','🐙','🦁']
@@ -67,5 +71,5 @@ export const POPULAR_TAGS = [
   'memes','relatable','lol','fyp','gato','fail',
   'based','devlife','lunes','cursed','viral','cringe',
   'gaming','tech','animals','humor','españa','mexico',
-  'youtube','video',
+  'youtube','video','anime','musica','comida','reggaeton',
 ]
