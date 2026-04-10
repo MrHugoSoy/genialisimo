@@ -20,11 +20,11 @@ const FEED_TITLES: Record<FeedType, string> = {
   following: 'SIGUIENDO 👥',
 }
 
-export function FeedPage({ feedType }: { feedType: FeedType }) {
+export function FeedPage({ feedType, initialPosts = [] }: { feedType: FeedType, initialPosts?: any[] }) {
   const searchParams = useSearchParams()
   const category = (searchParams.get('cat') as Category) ?? undefined
   const tag = searchParams.get('tag') ?? undefined
-  const { posts, loading, hasMore, loadMore, vote } = usePosts(feedType, category, tag)
+  const { posts, loading, hasMore, loadMore, vote } = usePosts(feedType, category, tag, initialPosts)
   const [authOpen, setAuthOpen] = useState(false)
   const loaderRef = useRef<HTMLDivElement>(null)
 

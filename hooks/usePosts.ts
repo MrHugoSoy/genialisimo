@@ -49,11 +49,11 @@ export function extractYoutubeId(url: string): string | null {
   return null
 }
 
-export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: string) {
+export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: string, initialPosts: Post[] = []) {
   const supabase = createClient()
-  const [posts, setPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(0)
+  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const [loading, setLoading] = useState(initialPosts.length === 0)
+  const [page, setPage] = useState(initialPosts.length > 0 ? 1 : 0)
   const [hasMore, setHasMore] = useState(true)
   const PAGE_SIZE = 10
 
@@ -61,7 +61,6 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     setLoading(true)
     const currentPage = reset ? 0 : page
 
-    // Feed de siguiendo
     if (feedType === 'following') {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoading(false); setPosts([]); return }
@@ -97,7 +96,6 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
       return
     }
 
-    // Feed normal
     let query = supabase
       .from('posts')
       .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
@@ -107,22 +105,14 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     if (tag) query = query.contains('tags', [tag])
 
     if (feedType === 'top') {
-      // Top — mas votos de todos los tiempos
       query = query.order('votes', { ascending: false })
     } else if (feedType === 'hot') {
-      // Hot — posts de las ultimas 24h con mas votos
       const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-      query = query
-        .gte('created_at', yesterday)
-        .order('votes', { ascending: false })
+      query = query.gte('created_at', yesterday).order('votes', { ascending: false })
     } else if (feedType === 'trending') {
-      // Trending — posts de la ultima semana con mas comentarios
       const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-      query = query
-        .gte('created_at', lastWeek)
-        .order('comment_count', { ascending: false })
+      query = query.gte('created_at', lastWeek).order('comment_count', { ascending: false })
     } else {
-      // Fresh — mas recientes
       query = query.order('created_at', { ascending: false })
     }
 
@@ -136,7 +126,9 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     setLoading(false)
   }, [feedType, category, tag, page])
 
-  useEffect(() => { fetchPosts(true) }, [feedType, category, tag])
+  useEffect(() => {
+    if (initialPosts.length === 0) fetchPosts(true)
+  }, [feedType, category, tag])
 
   async function vote(postId: number, value: 1 | -1) {
     const { error } = await supabase.rpc('vote_post', { p_post_id: postId, p_value: value })
