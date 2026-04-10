@@ -1,7 +1,7 @@
 'use client'
 import { useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, MessageCircle, CornerDownRight, Check, CheckCheck } from 'lucide-react'
+import { Bell, MessageCircle, CornerDownRight, CheckCheck, UserPlus } from 'lucide-react'
 import { useNotifications, Notification } from '@/hooks/useNotifications'
 import clsx from 'clsx'
 
@@ -14,6 +14,7 @@ function timeAgo(date: string) {
 }
 
 function NotifIcon({ type }: { type: string }) {
+  if (type === 'follow') return <UserPlus size={13} className="text-accent2" />
   if (type === 'reply') return <CornerDownRight size={13} className="text-accent2" />
   return <MessageCircle size={13} className="text-accent" />
 }
@@ -21,6 +22,7 @@ function NotifIcon({ type }: { type: string }) {
 function NotifText({ notif }: { notif: Notification }) {
   const user = notif.from_profile?.username ?? 'alguien'
   const title = notif.post?.title ? `"${notif.post.title.slice(0, 30)}${notif.post.title.length > 30 ? '...' : ''}"` : 'tu post'
+  if (notif.type === 'follow') return <span><b>{user}</b> ahora te sigue</span>
   if (notif.type === 'reply') return <span><b>{user}</b> respondio tu comentario en {title}</span>
   if (notif.type === 'comment') return <span><b>{user}</b> comento en {title}</span>
   return <span><b>{user}</b> interactuo con {title}</span>
@@ -47,7 +49,11 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
   function handleNotifClick(notif: Notification) {
     markRead(notif.id)
     onClose()
-    if (notif.post_id) router.push(`/post/${notif.post_id}`)
+    if (notif.type === 'follow' && notif.from_profile?.username) {
+      router.push(`/user/${notif.from_profile.username}`)
+    } else if (notif.post_id) {
+      router.push(`/post/${notif.post_id}`)
+    }
   }
 
   if (!open) return null
@@ -132,7 +138,6 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
   )
 }
 
-// Bell button con badge
 export function NotificationBell() {
   const { unreadCount } = useNotifications()
   return (

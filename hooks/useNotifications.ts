@@ -7,7 +7,7 @@ export interface Notification {
   id: number
   user_id: string
   from_user_id: string
-  type: 'comment' | 'reply' | 'vote' | 'mention'
+  type: 'comment' | 'reply' | 'vote' | 'mention' | 'follow'
   post_id: number
   comment_id: number
   read: boolean
