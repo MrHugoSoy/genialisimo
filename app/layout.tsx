@@ -65,7 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Toaster>
             <Analytics />
             <Topbar />
-            <main>{children}</main>
+            <main className="min-h-screen">{children}</main>
             <MobileNav />
             <footer className="border-t border-border py-6 px-4 hidden md:block">
               <div className="max-w-[1100px] mx-auto flex flex-wrap items-center justify-between gap-4">
