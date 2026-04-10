@@ -30,7 +30,8 @@ export function useNotifications() {
   useEffect(() => {
     if (!user) { setLoading(false); return }
     fetchNotifications()
-    subscribeToNotifications()
+    const unsub = subscribeToNotifications()
+    return unsub
   }, [user])
 
   async function fetchNotifications() {
@@ -45,7 +46,6 @@ export function useNotifications() {
       .eq('user_id', user!.id)
       .order('created_at', { ascending: false })
       .limit(30)
-
     if (data) {
       setNotifications(data)
       setUnreadCount(data.filter(n => !n.read).length)
@@ -65,9 +65,17 @@ export function useNotifications() {
           table: 'notifications',
           filter: `user_id=eq.${user!.id}`,
         },
-        () => {
-          fetchNotifications()
-        }
+        () => { fetchNotifications() }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user!.id}`,
+        },
+        () => { fetchNotifications() }
       )
       .subscribe()
     return () => { supabase.removeChannel(channel) }
@@ -87,8 +95,13 @@ export function useNotifications() {
   async function markRead(id: number) {
     const supabase = createClient()
     await supabase.from('notifications').update({ read: true }).eq('id', id)
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-    setUnreadCount(prev => Math.max(0, prev - 1))
+    setNotifications(prev => prev.map(n => {
+      if (n.id === id && !n.read) {
+        setUnreadCount(c => Math.max(0, c - 1))
+        return { ...n, read: true }
+      }
+      return n
+    }))
   }
 
   return { notifications, unreadCount, loading, markAllRead, markRead, refetch: fetchNotifications }

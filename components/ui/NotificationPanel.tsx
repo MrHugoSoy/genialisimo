@@ -55,7 +55,9 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
       router.push(`/post/${notif.post_id}`)
     }
   }
-
+useEffect(() => {
+  if (open && unreadCount > 0) markAllRead()
+}, [open])
   if (!open) return null
 
   return (
