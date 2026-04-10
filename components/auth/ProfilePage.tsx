@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from './AuthProvider'
 import { useToast } from '@/components/ui/Toaster'
-import { AVATARS } from '@/types'
+import { AVATARS, BANNER_GRADIENTS } from '@/types'
 import clsx from 'clsx'
 
 export function ProfilePage() {
@@ -12,6 +12,7 @@ export function ProfilePage() {
   const router = useRouter()
   const [bio, setBio] = useState('')
   const [selectedAvatar, setSelectedAvatar] = useState('')
+  const [selectedBanner, setSelectedBanner] = useState('')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -19,12 +20,13 @@ export function ProfilePage() {
     if (profile) {
       setBio(profile.bio ?? '')
       setSelectedAvatar(profile.avatar_emoji)
+      setSelectedBanner(profile.banner ?? BANNER_GRADIENTS[0])
     }
   }, [profile, user, loading])
 
   async function handleSave() {
     setSaving(true)
-    await updateProfile({ bio, avatar_emoji: selectedAvatar })
+    await updateProfile({ bio, avatar_emoji: selectedAvatar, banner: selectedBanner })
     setSaving(false)
     toast('✅', 'Perfil actualizado')
   }
@@ -37,8 +39,11 @@ export function ProfilePage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-24 pb-16">
-      {/* Banner */}
-      <div className="h-28 rounded-2xl mb-[-36px]" style={{ background: profile.banner ?? 'linear-gradient(135deg,#ff4654,#ff8c00)' }} />
+      {/* Banner preview */}
+      <div
+        className="h-28 rounded-2xl mb-[-36px] transition-all duration-300"
+        style={{ background: selectedBanner }}
+      />
 
       {/* Avatar */}
       <div className="flex items-end gap-4 px-4">
@@ -47,7 +52,9 @@ export function ProfilePage() {
         </div>
         <div className="pb-2">
           <h1 className="font-bebas text-3xl tracking-wide">{profile.username}</h1>
-          <p className="text-muted text-sm">Miembro desde {new Date(profile.created_at).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}</p>
+          <p className="text-muted text-sm">
+            Miembro desde {new Date(profile.created_at).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}
+          </p>
         </div>
       </div>
 
@@ -65,6 +72,7 @@ export function ProfilePage() {
       <div className="mt-6 bg-surface border border-border rounded-xl p-6 space-y-5">
         <h2 className="font-bebas text-xl tracking-wide text-muted">EDITAR PERFIL</h2>
 
+        {/* Avatar */}
         <div>
           <label className="block text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Avatar</label>
           <div className="flex flex-wrap gap-2">
@@ -83,30 +91,59 @@ export function ProfilePage() {
           </div>
         </div>
 
+        {/* Banner */}
         <div>
-          <label className="block text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Bio</label>
+          <label className="block text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Banner</label>
+          <div className="grid grid-cols-3 gap-2">
+            {BANNER_GRADIENTS.map((gradient, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedBanner(gradient)}
+                className={clsx(
+                  'h-12 rounded-lg border-2 transition-all',
+                  selectedBanner === gradient ? 'border-accent scale-105' : 'border-transparent hover:border-accent/50'
+                )}
+                style={{ background: gradient }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Bio */}
+        <div>
+          <label className="block text-[10px] font-mono uppercase tracking-widest text-muted mb-2">
+            Bio <span className="normal-case text-muted">({bio.length}/80)</span>
+          </label>
           <input
             type="text"
             value={bio}
             onChange={e => setBio(e.target.value)}
-            placeholder="Cuéntanos algo de ti..."
+            placeholder="Cuentanos algo de ti..."
             maxLength={80}
             className="w-full px-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
           />
         </div>
 
         <button
-          onClick={handleSave} disabled={saving}
+          onClick={handleSave}
+          disabled={saving}
           className="w-full py-3 bg-accent hover:bg-red-500 text-white rounded-xl font-bebas text-xl tracking-widest transition-all disabled:opacity-50"
         >
           {saving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
         </button>
 
         <button
+          onClick={() => router.push(`/user/${profile.username}`)}
+          className="w-full py-2.5 bg-surface2 border border-border hover:border-accent2 text-muted hover:text-white rounded-xl text-sm font-semibold transition-all"
+        >
+          Ver mi perfil publico
+        </button>
+
+        <button
           onClick={() => { signOut(); router.push('/') }}
           className="w-full py-2.5 bg-surface2 border border-border hover:border-accent text-muted hover:text-white rounded-xl text-sm font-semibold transition-all"
         >
-          Cerrar sesión
+          Cerrar sesion
         </button>
       </div>
     </div>
