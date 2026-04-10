@@ -46,6 +46,12 @@ export function RankingsClient() {
     setLoading(false)
   }
 
+  const podium = [
+    { user: users[1], medal: '🥈', height: 'h-28', border: 'hover:border-gray-300' },
+    { user: users[0], medal: '🥇', height: 'h-36', border: 'hover:border-yellow-400' },
+    { user: users[2], medal: '🥉', height: 'h-28', border: 'hover:border-orange-400' },
+  ]
+
   return (
     <div className="max-w-2xl mx-auto px-4 pt-24 pb-16">
       {/* Header */}
@@ -59,23 +65,22 @@ export function RankingsClient() {
         </div>
       </div>
 
-      {/* Top 3 destacados */}
+      {/* Top 3 podio */}
       {!loading && users.length >= 3 && (
-        <div className="grid grid-cols-3 gap-3 mb-8">
-          {[users[1], users[0], users[2]].map((u, i) => {
+        <div className="flex items-end gap-3 mb-8">
+          {podium.map(({ user: u, medal, height, border }, i) => {
+            if (!u) return null
             const level = getLevel(u.points)
-            const sizes = ['h-24', 'h-32', 'h-24']
-            const medals = ['🥈', '🥇', '🥉']
             return (
               <div
                 key={u.username}
                 onClick={() => router.push(`/user/${u.username}`)}
-                className={`flex flex-col items-center justify-end pb-4 bg-surface border border-border rounded-xl cursor-pointer hover:border-accent2 transition-all ${sizes[i]}`}
+                className={`flex-1 flex flex-col items-center justify-end pb-4 pt-3 bg-surface border border-border rounded-xl cursor-pointer ${border} transition-all ${height}`}
               >
-                <span className="text-2xl mb-1">{medals[i]}</span>
+                <span className="text-3xl mb-1">{medal}</span>
                 <span className="text-2xl">{u.avatar_emoji}</span>
                 <p className="font-bold text-xs mt-1 truncate max-w-[80px] text-center">{u.username}</p>
-                <p className="font-bebas text-lg leading-none" style={{ color: level.color }}>{u.points}</p>
+                <p className="font-bebas text-xl leading-none mt-1" style={{ color: level.color }}>{u.points}</p>
                 <p className="text-[9px] text-muted font-mono">pts</p>
               </div>
             )
