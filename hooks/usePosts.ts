@@ -127,8 +127,8 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
   }, [feedType, category, tag, page])
 
   useEffect(() => {
-    if (initialPosts.length === 0) fetchPosts(true)
-  }, [feedType, category, tag])
+  fetchPosts(true)
+}, [feedType, category, tag])
 
   async function vote(postId: number, value: 1 | -1) {
     const { error } = await supabase.rpc('vote_post', { p_post_id: postId, p_value: value })
