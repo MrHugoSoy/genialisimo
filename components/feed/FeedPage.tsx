@@ -47,7 +47,7 @@ export function FeedPage({ feedType }: { feedType: FeedType }) {
 
   return (
     <>
-      <div className="max-w-[1100px] mx-auto px-4 pt-20 pb-16 flex gap-7">
+      <div className="max-w-[1100px] mx-auto px-4 pt-20 pb-16 flex gap-7 items-start">
         <Sidebar />
 
         <div className="flex-1 min-w-0">
