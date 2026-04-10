@@ -70,9 +70,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <MobileNav />
               <footer className="border-t border-border py-6 px-4 hidden md:block">
                 <div className="max-w-[1100px] mx-auto flex flex-wrap items-center justify-between gap-4">
-                  <p className="text-[11px] font-mono text-muted">
-                    © 2026 Genialisimo — El feed de memes en español
-                  </p>
+                  <div className="flex items-center gap-4">
+                    <p className="text-[11px] font-mono text-muted">
+                      © 2026 Genialisimo
+                    </p>
+                    
+                     <a href="https://www.youtube.com/@Genialisimo"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-[11px] font-mono text-muted hover:text-red-500 transition-colors"
+                    >
+                      ▶️ YouTube
+                    </a>
+                  </div>
                   <div className="flex gap-4">
                     <a href="/privacidad" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
                       Privacidad
