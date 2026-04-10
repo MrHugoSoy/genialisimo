@@ -52,7 +52,7 @@ const schemaOrg = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" style={{ overflowX: 'hidden' }}>
+    <html lang="es">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
         <script
@@ -60,36 +60,38 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
         />
       </head>
-      <body className="pb-16 md:pb-0" style={{ overflowX: 'hidden', maxWidth: '100vw' }}>
-        <AuthProvider>
-          <Toaster>
-            <Analytics />
-            <Topbar />
-            <main className="min-h-screen">{children}</main>
-            <MobileNav />
-            <footer className="border-t border-border py-6 px-4 hidden md:block">
-              <div className="max-w-[1100px] mx-auto flex flex-wrap items-center justify-between gap-4">
-                <p className="text-[11px] font-mono text-muted">
-                  © 2026 Genialisimo — El feed de memes en español
-                </p>
-                <div className="flex gap-4">
-                  <a href="/privacidad" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
-                    Privacidad
-                  </a>
-                  <a href="/terminos" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
-                    Terminos
-                  </a>
-                  <a href="/acerca" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
-                    Acerca
-                  </a>
-                  <a href="mailto:contacto@genialisimo.com" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
-                    Contacto
-                  </a>
+      <body className="pb-16 md:pb-0">
+        <div style={{ overflowX: 'hidden', maxWidth: '100vw', position: 'relative' }}>
+          <AuthProvider>
+            <Toaster>
+              <Analytics />
+              <Topbar />
+              <main className="min-h-screen">{children}</main>
+              <MobileNav />
+              <footer className="border-t border-border py-6 px-4 hidden md:block">
+                <div className="max-w-[1100px] mx-auto flex flex-wrap items-center justify-between gap-4">
+                  <p className="text-[11px] font-mono text-muted">
+                    © 2026 Genialisimo — El feed de memes en español
+                  </p>
+                  <div className="flex gap-4">
+                    <a href="/privacidad" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
+                      Privacidad
+                    </a>
+                    <a href="/terminos" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
+                      Terminos
+                    </a>
+                    <a href="/acerca" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
+                      Acerca
+                    </a>
+                    <a href="mailto:contacto@genialisimo.com" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
+                      Contacto
+                    </a>
+                  </div>
                 </div>
-              </div>
-            </footer>
-          </Toaster>
-        </AuthProvider>
+              </footer>
+            </Toaster>
+          </AuthProvider>
+        </div>
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8458170443836025"
