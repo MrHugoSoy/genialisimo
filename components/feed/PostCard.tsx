@@ -313,16 +313,15 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
         </div>
       )}
       {!post.video_url && post.image_url && (
-        <div className="relative bg-black overflow-hidden" style={{ maxHeight: 560 }}>
-          <Image
-            src={post.image_url}
-            alt={currentTitle}
-            width={800}
-            height={560}
-            className="w-full object-contain"
-            style={{ maxHeight: 560 }}
-            priority={delay === 0}
-          />
+  <div className="relative overflow-hidden">
+    <Image
+      src={post.image_url}
+      alt={currentTitle}
+      width={800}
+      height={1200}
+      className="w-full h-auto"
+      priority={delay === 0}
+    />
           <div className="absolute top-3 right-3 flex gap-2">
             {isHot && (
               <span className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-hot text-white">
