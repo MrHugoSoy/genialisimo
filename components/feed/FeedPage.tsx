@@ -7,8 +7,9 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { RightSidebar } from '@/components/layout/RightSidebar'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { SkeletonCard } from '@/components/ui/SkeletonCard'
-import { Category } from '@/types'
-import { Tag, Users } from 'lucide-react'
+import { useAuthContext } from '@/components/auth/AuthProvider'
+import { Category, Post } from '@/types'
+import { Tag, Users, Zap, MessageCircle, TrendingUp } from 'lucide-react'
 
 type FeedType = 'hot' | 'trending' | 'fresh' | 'top' | 'following'
 
@@ -20,12 +21,54 @@ const FEED_TITLES: Record<FeedType, string> = {
   following: 'SIGUIENDO 👥',
 }
 
-export function FeedPage({ feedType, initialPosts = [] }: { feedType: FeedType, initialPosts?: any[] }) {
+function WelcomeBanner({ onRegister }: { onRegister: () => void }) {
+  return (
+    <div className="bg-surface border border-border rounded-xl p-5 mb-6 overflow-hidden relative">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-accent2 to-accent" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <h2 className="font-bebas text-2xl tracking-wide mb-1">
+            Bienvenido a <span className="text-accent">Geniali</span><span className="text-accent2">simo</span> 🔥
+          </h2>
+          <p className="text-sm text-muted mb-3">
+            El mejor feed de memes y contenido viral en español. Únete a la comunidad latina.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-1.5 text-xs text-muted">
+              <Zap size={13} className="text-accent2" />
+              <span>Vota el mejor contenido</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted">
+              <MessageCircle size={13} className="text-accent" />
+              <span>Comenta y conecta</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted">
+              <TrendingUp size={13} className="text-accent2" />
+              <span>Sube tu contenido</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <button
+            onClick={onRegister}
+            className="px-5 py-2.5 bg-accent text-white font-bebas text-lg tracking-wider rounded-xl hover:bg-red-500 transition-colors"
+          >
+            Unirse gratis
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function FeedPage({ feedType, initialPosts = [] }: { feedType: FeedType, initialPosts?: Post[] }) {
   const searchParams = useSearchParams()
   const category = (searchParams.get('cat') as Category) ?? undefined
   const tag = searchParams.get('tag') ?? undefined
   const { posts, loading, hasMore, loadMore, vote } = usePosts(feedType, category, tag, initialPosts)
+  const { user } = useAuthContext()
   const [authOpen, setAuthOpen] = useState(false)
+  const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   const loaderRef = useRef<HTMLDivElement>(null)
 
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
@@ -45,12 +88,22 @@ export function FeedPage({ feedType, initialPosts = [] }: { feedType: FeedType, 
     return () => observer.disconnect()
   }, [handleObserver])
 
+  function openRegister() {
+    setAuthTab('register')
+    setAuthOpen(true)
+  }
+
   return (
     <>
       <div className="max-w-[1100px] mx-auto px-4 pt-20 pb-16 flex gap-7 items-start">
         <Sidebar />
 
         <div className="flex-1 min-w-0">
+          {/* Banner de bienvenida — solo para usuarios no logueados */}
+          {!user && feedType === 'hot' && (
+            <WelcomeBanner onRegister={openRegister} />
+          )}
+
           {/* Feed header */}
           <div className="flex items-center gap-3 mb-5 flex-wrap">
             <h1 className="font-bebas text-3xl tracking-wide">
@@ -125,7 +178,7 @@ export function FeedPage({ feedType, initialPosts = [] }: { feedType: FeedType, 
         <RightSidebar trending={posts} />
       </div>
 
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+      <AuthModal isOpen={authOpen} defaultTab={authTab} onClose={() => setAuthOpen(false)} />
     </>
   )
 }
