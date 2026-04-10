@@ -77,7 +77,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     Privacidad
                   </a>
                   <a href="/terminos" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
-                    Términos
+                    Terminos
+                  </a>
+                  <a href="/acerca" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
+                    Acerca
+                  </a>
+                  <a href="mailto:contacto@genialisimo.com" className="text-[11px] font-mono text-muted hover:text-accent transition-colors">
+                    Contacto
                   </a>
                 </div>
               </div>
