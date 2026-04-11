@@ -107,8 +107,11 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     if (feedType === 'top') {
       query = query.order('votes', { ascending: false })
     } else if (feedType === 'hot') {
-      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-      query = query.gte('created_at', yesterday).order('votes', { ascending: false })
+      if (!category && !tag) {
+        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+        query = query.gte('created_at', yesterday)
+      }
+      query = query.order('votes', { ascending: false })
     } else if (feedType === 'trending') {
       const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
       query = query.gte('created_at', lastWeek).order('comment_count', { ascending: false })
@@ -127,8 +130,8 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
   }, [feedType, category, tag, page])
 
   useEffect(() => {
-  fetchPosts(true)
-}, [feedType, category, tag])
+    fetchPosts(true)
+  }, [feedType, category, tag])
 
   async function vote(postId: number, value: 1 | -1) {
     const { error } = await supabase.rpc('vote_post', { p_post_id: postId, p_value: value })
@@ -155,6 +158,20 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     const supabaseClient = createClient()
     const { data: { user } } = await supabaseClient.auth.getUser()
     if (!user) return { data: null, error: 'No autenticado' }
+
+    // Sanitizar titulo
+    title = title.trim().replace(/<[^>]*>/g, '').slice(0, 120)
+    if (!title) return { data: null, error: 'Titulo invalido' }
+
+    // Validar tamaño de imagen — max 10MB
+    if (imageFile && imageFile.size > 10 * 1024 * 1024) {
+      return { data: null, error: 'La imagen no puede pesar mas de 10MB' }
+    }
+
+    // Validar tipo de archivo
+    if (imageFile && !['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(imageFile.type)) {
+      return { data: null, error: 'Formato de imagen no permitido' }
+    }
 
     let image_url: string | null = null
     let video_url: string | null = null
