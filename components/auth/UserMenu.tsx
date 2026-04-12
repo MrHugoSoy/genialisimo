@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from './AuthProvider'
 import { useToast } from '@/components/ui/Toaster'
-import { User, LogOut, Upload, Settings, ChevronDown, BarChart2, Shield } from 'lucide-react'
+import { User, LogOut, Upload, Settings, ChevronDown, Shield } from 'lucide-react'
 import { NotificationPanel, NotificationBell } from '@/components/ui/NotificationPanel'
 import clsx from 'clsx'
 
@@ -37,7 +37,6 @@ export function UserMenu() {
   const menuItems = [
     { icon: User,      label: 'Mi perfil',       action: () => { router.push(`/user/${profile.username}`); setMenuOpen(false) } },
     { icon: Upload,    label: 'Subir post',       action: () => { router.push('/create'); setMenuOpen(false) } },
-    { icon: BarChart2, label: 'Mis estadisticas', action: () => { router.push(`/user/${profile.username}#estadisticas`); setMenuOpen(false) } },
     { icon: Settings,  label: 'Ajustes',          action: () => toast('⚙️', 'Proximamente') },
   ]
 
