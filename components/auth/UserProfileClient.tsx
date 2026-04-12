@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useAuthContext } from './AuthProvider'
 import { PostCard } from '@/components/feed/PostCard'
 import { AuthModal } from './AuthModal'
-import { Profile, Post, BANNER_GRADIENTS } from '@/types'
-import { Calendar, Award, FileText, Pencil, UserPlus, UserMinus, Users } from 'lucide-react'
+import { Profile, Post, BANNER_GRADIENTS, CATEGORIES } from '@/types'
+import { Calendar, Award, FileText, Pencil, UserPlus, UserMinus, Users, TrendingUp, MessageSquare, BarChart2, Star } from 'lucide-react'
 import { usePosts } from '@/hooks/usePosts'
 import { createClient } from '@/lib/supabase'
 import { useToast } from '@/components/ui/Toaster'
@@ -49,6 +49,18 @@ export function UserProfileClient({ profile, posts: initialPosts }: UserProfileC
       ? b.votes - a.votes
       : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
+
+  // Computed stats from posts
+  const totalVotes = posts.reduce((sum, p) => sum + p.votes, 0)
+  const totalComments = posts.reduce((sum, p) => sum + p.comment_count, 0)
+  const avgVotes = posts.length > 0 ? Math.round(totalVotes / posts.length) : 0
+  const bestPost = posts.length > 0
+    ? posts.reduce((best, p) => p.votes > best.votes ? p : best, posts[0])
+    : null
+  const categoryCount: Record<string, number> = {}
+  posts.forEach(p => { categoryCount[p.category] = (categoryCount[p.category] ?? 0) + 1 })
+  const topCategoryKey = Object.entries(categoryCount).sort((a, b) => b[1] - a[1])[0]?.[0] as keyof typeof CATEGORIES | undefined
+  const topCategory = topCategoryKey ? CATEGORIES[topCategoryKey] : null
 
   useEffect(() => {
     if (!user || isOwn) return
@@ -143,14 +155,15 @@ export function UserProfileClient({ profile, posts: initialPosts }: UserProfileC
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-4 gap-3 mb-4">
           {[
-            { icon: FileText, value: posts.length, label: 'Posts', color: 'text-accent2' },
-            { icon: Users,    value: followersCount, label: 'Seguidores', color: 'text-accent2' },
-            { icon: Users,    value: followingCount, label: 'Siguiendo', color: 'text-accent2' },
-            { icon: Award,    value: profile.points ?? 0, label: 'Puntos', color: 'text-accent' },
-          ].map(({ icon: Icon, value, label, color }) => (
+            { Icon: FileText, value: posts.length, label: 'Posts', color: 'text-accent2' },
+            { Icon: Users,    value: followersCount, label: 'Seguidores', color: 'text-accent2' },
+            { Icon: Users,    value: followingCount, label: 'Siguiendo', color: 'text-accent2' },
+            { Icon: Award,    value: profile.points ?? 0, label: 'Puntos', color: 'text-accent' },
+          ].map(({ Icon, value, label, color }) => (
             <div key={label} className="bg-surface border border-border rounded-xl p-3 text-center">
+              <Icon size={13} className={`${color} mx-auto mb-1 opacity-60`} />
               <p className={`font-bebas text-2xl leading-none ${color}`}>{value}</p>
               <p className="text-[10px] text-muted uppercase tracking-widest font-mono mt-1">{label}</p>
             </div>
@@ -158,10 +171,65 @@ export function UserProfileClient({ profile, posts: initialPosts }: UserProfileC
         </div>
 
         {/* Miembro desde */}
-        <div className="flex items-center gap-2 mb-6 text-muted">
+        <div className="flex items-center gap-2 mb-5 text-muted">
           <Calendar size={13} strokeWidth={2} />
           <p className="text-[11px] font-mono">Miembro desde {formatDate(profile.created_at)}</p>
         </div>
+
+        {/* Estadísticas detalladas */}
+        {posts.length > 0 && (
+          <div className="mb-6 bg-surface border border-border rounded-xl p-4">
+            <h3 className="font-bebas text-sm tracking-widest text-muted mb-3">ESTADÍSTICAS</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 bg-surface2 rounded-lg p-3">
+                <TrendingUp size={18} className="text-accent shrink-0" />
+                <div>
+                  <p className="font-bebas text-xl leading-none text-accent">{totalVotes}</p>
+                  <p className="text-[10px] text-muted uppercase tracking-widest font-mono">Votos recibidos</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-surface2 rounded-lg p-3">
+                <MessageSquare size={18} className="text-accent2 shrink-0" />
+                <div>
+                  <p className="font-bebas text-xl leading-none text-accent2">{totalComments}</p>
+                  <p className="text-[10px] text-muted uppercase tracking-widest font-mono">Comentarios</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-surface2 rounded-lg p-3">
+                <BarChart2 size={18} className="text-yellow-400 shrink-0" />
+                <div>
+                  <p className="font-bebas text-xl leading-none text-yellow-400">{avgVotes}</p>
+                  <p className="text-[10px] text-muted uppercase tracking-widest font-mono">Promedio votos</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-surface2 rounded-lg p-3">
+                <Star size={18} className="text-purple-400 shrink-0" />
+                <div>
+                  {topCategory ? (
+                    <>
+                      <p className="font-bebas text-xl leading-none text-purple-400">
+                        {topCategory.emoji} {topCategory.label}
+                      </p>
+                      <p className="text-[10px] text-muted uppercase tracking-widest font-mono">Cat. favorita</p>
+                    </>
+                  ) : (
+                    <p className="text-[10px] text-muted uppercase tracking-widest font-mono">Sin categoría</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            {bestPost && (
+              <div className="mt-3 flex items-center gap-2 bg-surface2 rounded-lg p-3">
+                <Award size={16} className="text-yellow-400 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] text-muted uppercase tracking-widest font-mono mb-0.5">Mejor post</p>
+                  <p className="text-sm font-semibold truncate">{bestPost.title}</p>
+                </div>
+                <span className="font-bebas text-lg text-accent shrink-0">{bestPost.votes} pts</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Posts header con sort */}
         <div className="flex items-center justify-between mb-4">
