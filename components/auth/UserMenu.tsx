@@ -37,7 +37,7 @@ export function UserMenu() {
   const menuItems = [
     { icon: User,      label: 'Mi perfil',       action: () => { router.push(`/user/${profile.username}`); setMenuOpen(false) } },
     { icon: Upload,    label: 'Subir post',       action: () => { router.push('/create'); setMenuOpen(false) } },
-    { icon: BarChart2, label: 'Mis estadisticas', action: () => toast('📊', 'Proximamente') },
+    { icon: BarChart2, label: 'Mis estadisticas', action: () => { router.push(`/user/${profile.username}#estadisticas`); setMenuOpen(false) } },
     { icon: Settings,  label: 'Ajustes',          action: () => toast('⚙️', 'Proximamente') },
   ]
 

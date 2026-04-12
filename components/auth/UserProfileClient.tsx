@@ -178,7 +178,7 @@ export function UserProfileClient({ profile, posts: initialPosts }: UserProfileC
 
         {/* Estadísticas detalladas */}
         {posts.length > 0 && (
-          <div className="mb-6 bg-surface border border-border rounded-xl p-4">
+          <div id="estadisticas" className="mb-6 bg-surface border border-border rounded-xl p-4">
             <h3 className="font-bebas text-sm tracking-widest text-muted mb-3">ESTADÍSTICAS</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-3 bg-surface2 rounded-lg p-3">
