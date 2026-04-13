@@ -84,14 +84,11 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
           <X size={16} />
         </button>
 
-        {/* Pantalla de verificacion de email */}
         {registered ? (
           <div className="text-center py-4">
             <p className="text-5xl mb-4">📧</p>
             <h2 className="font-bebas text-2xl tracking-wide mb-2">Verifica tu email</h2>
-            <p className="text-muted text-sm mb-2">
-              Enviamos un link de verificacion a:
-            </p>
+            <p className="text-muted text-sm mb-2">Enviamos un link de verificacion a:</p>
             <p className="font-bold text-white mb-4">{registeredEmail}</p>
             <p className="text-muted text-xs mb-6">
               Revisa tu bandeja de entrada y spam. Debes verificar tu cuenta antes de iniciar sesion.
@@ -174,6 +171,16 @@ export function AuthModal({ isOpen, defaultTab = 'login', onClose }: AuthModalPr
 
             {tab === 'register' && (
               <div className="space-y-4">
+                {/* Google OAuth en registro */}
+                <button
+                  onClick={signInWithGoogle}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-surface2 border border-border rounded-lg text-sm font-semibold hover:border-accent transition-colors"
+                >
+                  🌐 Continuar con Google
+                </button>
+                <div className="flex items-center gap-3 text-muted text-xs">
+                  <div className="flex-1 h-px bg-border" /> o con email <div className="flex-1 h-px bg-border" />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="relative">
                     <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
