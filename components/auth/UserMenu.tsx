@@ -5,6 +5,7 @@ import { useAuthContext } from './AuthProvider'
 import { useToast } from '@/components/ui/Toaster'
 import { User, LogOut, Upload, Settings, ChevronDown, Shield } from 'lucide-react'
 import { NotificationPanel, NotificationBell } from '@/components/ui/NotificationPanel'
+import { Avatar } from '@/components/ui/Avatar'
 import clsx from 'clsx'
 
 export function UserMenu() {
@@ -53,16 +54,19 @@ export function UserMenu() {
         <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
       </div>
 
-      {/* User pill — solo avatar en mobile, avatar + nombre en desktop */}
+      {/* User pill */}
       <div ref={menuRef} className="relative">
         <button
           onClick={() => { setMenuOpen(o => !o); setNotifOpen(false) }}
           className="flex items-center gap-1.5 bg-surface2 border border-border rounded-full pl-1 py-1 hover:border-accent transition-colors pr-1.5 md:pr-3"
         >
-          <div className="w-7 h-7 rounded-full bg-surface border-2 border-accent flex items-center justify-center text-base leading-none shrink-0">
-            {profile.avatar_emoji}
+          <div className="w-7 h-7 rounded-full border-2 border-accent flex items-center justify-center overflow-hidden shrink-0 bg-surface">
+            <Avatar
+              avatarUrl={(profile as any).avatar_url}
+              avatarEmoji={profile.avatar_emoji}
+              size={28}
+            />
           </div>
-          {/* Username solo en desktop */}
           <span className="hidden md:block text-sm font-bold max-w-[90px] truncate">{profile.username}</span>
           <ChevronDown size={12} className={clsx('hidden md:block text-muted transition-transform', menuOpen && 'rotate-180')} />
         </button>
@@ -74,8 +78,12 @@ export function UserMenu() {
                 className="flex items-center gap-2 mb-2 cursor-pointer"
                 onClick={() => { router.push(`/user/${profile.username}`); setMenuOpen(false) }}
               >
-                <div className="w-9 h-9 rounded-full bg-surface2 border border-border flex items-center justify-center text-xl">
-                  {profile.avatar_emoji}
+                <div className="w-9 h-9 rounded-full bg-surface2 border border-border flex items-center justify-center overflow-hidden shrink-0">
+                  <Avatar
+                    avatarUrl={(profile as any).avatar_url}
+                    avatarEmoji={profile.avatar_emoji}
+                    size={36}
+                  />
                 </div>
                 <div>
                   <p className="font-bold text-sm leading-tight hover:text-accent transition-colors">{profile.username}</p>

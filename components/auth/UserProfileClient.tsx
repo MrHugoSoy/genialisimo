@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthContext } from './AuthProvider'
 import { PostCard } from '@/components/feed/PostCard'
 import { AuthModal } from './AuthModal'
+import { Avatar } from '@/components/ui/Avatar'
 import { Profile, Post, BANNER_GRADIENTS, CATEGORIES } from '@/types'
 import { Calendar, Award, FileText, Pencil, UserPlus, UserMinus, Users, TrendingUp, MessageSquare, BarChart2, Star } from 'lucide-react'
 import { usePosts } from '@/hooks/usePosts'
@@ -50,7 +51,6 @@ export function UserProfileClient({ profile, posts: initialPosts }: UserProfileC
       : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
 
-  // Computed stats from posts
   const totalVotes = posts.reduce((sum, p) => sum + p.votes, 0)
   const totalComments = posts.reduce((sum, p) => sum + p.comment_count, 0)
   const avgVotes = posts.length > 0 ? Math.round(totalVotes / posts.length) : 0
@@ -112,8 +112,12 @@ export function UserProfileClient({ profile, posts: initialPosts }: UserProfileC
 
         {/* Avatar + info */}
         <div className="flex items-end gap-4 px-4 mb-4">
-          <div className="w-20 h-20 rounded-full bg-surface border-4 border-bg flex items-center justify-center text-4xl relative z-10 shrink-0">
-            {profile.avatar_emoji}
+          <div className="w-20 h-20 rounded-full bg-surface border-4 border-bg flex items-center justify-center text-4xl relative z-10 shrink-0 overflow-hidden">
+            <Avatar
+              avatarUrl={(profile as any).avatar_url}
+              avatarEmoji={profile.avatar_emoji}
+              size={80}
+            />
           </div>
           <div className="pb-2 flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
