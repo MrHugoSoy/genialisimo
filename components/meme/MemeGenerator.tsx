@@ -4,10 +4,9 @@ import { useRouter } from 'next/navigation'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { useToast } from '@/components/ui/Toaster'
 import { createClient } from '@/lib/supabase'
-import { Upload, Download, Send, Type } from 'lucide-react'
+import { Upload, Download, Send } from 'lucide-react'
 
 const TEMPLATES = ['😂', '🤔', '😤', '💀', '🗿', '😭', '🤡', '👀', '🙏', '😈']
-
 const FONTS = ['Impact', 'Arial Black', 'Comic Sans MS', 'Arial']
 
 export function MemeGenerator() {
@@ -28,6 +27,7 @@ export function MemeGenerator() {
   const [aspect, setAspect] = useState<'1:1' | '16:9' | '9:16'>('1:1')
   const [publishing, setPublishing] = useState(false)
   const [title, setTitle] = useState('')
+  const [tagsInput, setTagsInput] = useState('meme,genialisimo')
 
   const getDimensions = () => {
     switch (aspect) {
@@ -126,12 +126,13 @@ export function MemeGenerator() {
       const { error: uploadError } = await supabase.storage.from('posts').upload(path, file)
       if (uploadError) throw uploadError
       const image_url = supabase.storage.from('posts').getPublicUrl(path).data.publicUrl
+      const tags = tagsInput.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
       const { error } = await supabase.from('posts').insert({
         title: title.trim(),
         category: 'memes',
         image_url,
         user_id: user.id,
-        tags: ['meme', 'genialisimo'],
+        tags,
       })
       if (error) throw error
       toast('🔥', 'Meme publicado!')
@@ -141,8 +142,6 @@ export function MemeGenerator() {
     }
     setPublishing(false)
   }
-
-  const { w, h } = getDimensions()
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-20 pb-16">
@@ -156,7 +155,7 @@ export function MemeGenerator() {
         {/* Panel izquierdo */}
         <div className="w-64 shrink-0 space-y-4">
 
-          {/* Subir imagen */}
+          {/* Imagen */}
           <div className="bg-surface border border-border rounded-xl p-4">
             <p className="text-[10px] font-mono uppercase tracking-widest text-muted mb-3">Imagen</p>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -279,6 +278,26 @@ export function MemeGenerator() {
                 placeholder="Titulo del meme para publicar..."
                 className="w-full px-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
               />
+              {/* Tags */}
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-mono">#</span>
+                <input
+                  type="text"
+                  value={tagsInput}
+                  onChange={e => setTagsInput(e.target.value)}
+                  placeholder="meme, viral, lunes..."
+                  className="w-full pl-7 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors font-mono"
+                />
+              </div>
+              {tagsInput && (
+                <div className="flex flex-wrap gap-1.5">
+                  {tagsInput.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
+                    <span key={tag} className="text-[11px] px-2 py-0.5 bg-accent/10 border border-accent/30 text-accent rounded-full font-mono">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="flex gap-3">
                 <button
                   onClick={handleDownload}
