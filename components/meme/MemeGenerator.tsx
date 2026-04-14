@@ -5,9 +5,48 @@ import { useAuthContext } from '@/components/auth/AuthProvider'
 import { useToast } from '@/components/ui/Toaster'
 import { createClient } from '@/lib/supabase'
 import { Upload, Download, Send } from 'lucide-react'
+import { HexColorPicker } from 'react-colorful'
 
 const TEMPLATES = ['😂', '🤔', '😤', '💀', '🗿', '😭', '🤡', '👀', '🙏', '😈']
 const FONTS = ['Impact', 'Arial Black', 'Comic Sans MS', 'Arial']
+
+function ColorPicker({ label, color, onChange }: { label: string; color: string; onChange: (c: string) => void }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="flex-1 relative">
+      <label className="text-[10px] text-muted font-mono mb-1 block">{label}</label>
+      <button
+        onClick={() => setOpen(p => !p)}
+        className="w-full h-9 rounded-lg border-2 border-border cursor-pointer transition-all hover:border-accent"
+        style={{ background: color }}
+      />
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute z-20 top-12 left-0 p-3 bg-surface border border-border rounded-xl shadow-lg">
+            <HexColorPicker color={color} onChange={onChange} />
+            <input
+              type="text"
+              value={color}
+              onChange={e => onChange(e.target.value)}
+              className="w-full mt-2 px-2 py-1.5 bg-surface2 border border-border rounded-lg text-xs font-mono outline-none focus:border-accent transition-colors text-center"
+            />
+            <div className="flex flex-wrap gap-1 mt-2">
+              {['#ffffff', '#000000', '#ff4654', '#ffcc00', '#00d4aa', '#7b61ff', '#ff6b35', '#ff69b4'].map(c => (
+                <button
+                  key={c}
+                  onClick={() => onChange(c)}
+                  className="w-6 h-6 rounded-md border border-border hover:scale-110 transition-transform"
+                  style={{ background: c }}
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
 
 export function MemeGenerator() {
   const { user } = useAuthContext()
@@ -150,10 +189,9 @@ export function MemeGenerator() {
         <span className="text-[11px] font-mono text-muted bg-surface2 border border-border px-3 py-1 rounded-full">Beta</span>
       </div>
 
-      {/* Layout — mobile: columna, desktop: dos columnas */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-        {/* Canvas — primero en mobile */}
+        {/* Canvas */}
         <div className="w-full lg:flex-1 lg:min-w-0 order-first lg:order-last">
           <div className="bg-surface border border-border rounded-xl overflow-hidden">
             <div className="p-4 flex items-center justify-center bg-[#111]" style={{ minHeight: 300 }}>
@@ -208,7 +246,7 @@ export function MemeGenerator() {
           </div>
         </div>
 
-        {/* Panel de controles — segundo en mobile */}
+        {/* Panel de controles */}
         <div className="w-full lg:w-64 lg:shrink-0 space-y-4 order-last lg:order-first">
 
           {/* Imagen */}
@@ -286,16 +324,8 @@ export function MemeGenerator() {
               />
             </div>
             <div className="flex gap-3">
-              <div className="flex-1">
-                <label className="text-[10px] text-muted font-mono mb-1 block">Texto</label>
-                <input type="color" value={textColor} onChange={e => setTextColor(e.target.value)}
-                  className="w-full h-9 rounded-lg border border-border bg-surface2 cursor-pointer" />
-              </div>
-              <div className="flex-1">
-                <label className="text-[10px] text-muted font-mono mb-1 block">Fondo</label>
-                <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)}
-                  className="w-full h-9 rounded-lg border border-border bg-surface2 cursor-pointer" />
-              </div>
+              <ColorPicker label="Texto" color={textColor} onChange={setTextColor} />
+              <ColorPicker label="Fondo" color={bgColor} onChange={setBgColor} />
             </div>
           </div>
 
