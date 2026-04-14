@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Search, Flame, TrendingUp, Sparkles, Crown, Plus, Users } from 'lucide-react'
+import { Search, Flame, TrendingUp, Sparkles, Crown, Plus, Users, Type, Trophy } from 'lucide-react'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { AuthModal } from '@/components/auth/AuthModal'
@@ -102,12 +102,26 @@ export function Topbar() {
               <Users size={13} strokeWidth={2.5} /> Siguiendo
             </Link>
           )}
+          <Link href="/rankings"
+            className={clsx(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all',
+              pathname === '/rankings' ? 'bg-accent2 text-black' : 'text-muted hover:text-white hover:bg-surface2'
+            )}
+          >
+            <Trophy size={13} strokeWidth={2.5} /> Rankings
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
           {user ? (
             <>
               <UserMenu />
+              <Link
+                href="/meme"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-surface2 border border-border text-muted hover:text-white text-xs font-bold rounded-lg transition-colors"
+              >
+                <Type size={13} /> Meme
+              </Link>
               <button
                 onClick={() => router.push('/create')}
                 className="flex items-center gap-1.5 px-4 py-1.5 bg-accent2 text-black font-bebas text-base tracking-wider rounded-lg hover:scale-105 transition-transform"

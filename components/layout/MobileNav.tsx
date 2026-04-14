@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Flame, TrendingUp, Sparkles, Crown, PlusCircle, Users } from 'lucide-react'
+import { Flame, TrendingUp, Sparkles, Crown, PlusCircle, Users, Type, Trophy } from 'lucide-react'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import clsx from 'clsx'
 
@@ -14,7 +14,10 @@ export function MobileNav() {
     { label: 'Trend',     href: '/trending',  icon: TrendingUp },
     { label: 'Fresh',     href: '/fresh',     icon: Sparkles },
     { label: 'Top',       href: '/top',       icon: Crown },
-    ...(user ? [{ label: 'Siguiendo', href: '/following', icon: Users }] : []),
+    ...(user ? [
+      { label: 'Siguiendo', href: '/following', icon: Users },
+      { label: 'Meme',      href: '/meme',      icon: Type },
+    ] : []),
     { label: 'Crear',     href: '/create',    icon: PlusCircle },
   ]
 
