@@ -208,16 +208,21 @@ export function MemeGenerator() {
                 placeholder="Titulo del meme para publicar..."
                 className="w-full px-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
               />
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-mono">#</span>
-                <input
-                  type="text"
-                  value={tagsInput}
-                  onChange={e => setTagsInput(e.target.value)}
-                  placeholder="meme, viral, lunes..."
-                  className="w-full pl-7 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors font-mono"
-                />
-              </div>
+              <div>
+  <label className="text-[11px] text-muted font-mono mb-1.5 block">
+    Tags — separa cada palabra con una coma
+  </label>
+  <div className="relative">
+    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-mono">#</span>
+    <input
+      type="text"
+      value={tagsInput}
+      onChange={e => setTagsInput(e.target.value)}
+      placeholder="meme, viral, lunes, humor..."
+      className="w-full pl-7 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors font-mono"
+    />
+  </div>
+</div>
               {tagsInput && (
                 <div className="flex flex-wrap gap-1.5">
                   {tagsInput.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
