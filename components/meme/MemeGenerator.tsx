@@ -150,10 +150,66 @@ export function MemeGenerator() {
         <span className="text-[11px] font-mono text-muted bg-surface2 border border-border px-3 py-1 rounded-full">Beta</span>
       </div>
 
-      <div className="flex gap-6 items-start">
+      {/* Layout — mobile: columna, desktop: dos columnas */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-        {/* Panel izquierdo */}
-        <div className="w-64 shrink-0 space-y-4">
+        {/* Canvas — primero en mobile */}
+        <div className="w-full lg:flex-1 lg:min-w-0 order-first lg:order-last">
+          <div className="bg-surface border border-border rounded-xl overflow-hidden">
+            <div className="p-4 flex items-center justify-center bg-[#111]" style={{ minHeight: 300 }}>
+              <canvas
+                ref={canvasRef}
+                style={{ maxWidth: '100%', maxHeight: 400, borderRadius: 8, display: 'block' }}
+              />
+            </div>
+            <div className="p-4 border-t border-border space-y-3">
+              <input
+                type="text"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="Titulo del meme para publicar..."
+                className="w-full px-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
+              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-mono">#</span>
+                <input
+                  type="text"
+                  value={tagsInput}
+                  onChange={e => setTagsInput(e.target.value)}
+                  placeholder="meme, viral, lunes..."
+                  className="w-full pl-7 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors font-mono"
+                />
+              </div>
+              {tagsInput && (
+                <div className="flex flex-wrap gap-1.5">
+                  {tagsInput.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
+                    <span key={tag} className="text-[11px] px-2 py-0.5 bg-accent/10 border border-accent/30 text-accent rounded-full font-mono">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm font-bold text-muted hover:text-white transition-colors"
+                >
+                  <Download size={15} /> Descargar
+                </button>
+                <button
+                  onClick={handlePublish}
+                  disabled={publishing}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-accent hover:bg-red-500 text-white rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+                >
+                  <Send size={15} /> {publishing ? 'Publicando...' : 'Publicar en el feed'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Panel de controles — segundo en mobile */}
+        <div className="w-full lg:w-64 lg:shrink-0 space-y-4 order-last lg:order-first">
 
           {/* Imagen */}
           <div className="bg-surface border border-border rounded-xl p-4">
@@ -260,63 +316,6 @@ export function MemeGenerator() {
           </div>
 
         </div>
-
-        {/* Canvas */}
-        <div className="flex-1 min-w-0">
-          <div className="bg-surface border border-border rounded-xl overflow-hidden">
-            <div className="p-4 flex items-center justify-center bg-[#111]" style={{ minHeight: 400 }}>
-              <canvas
-                ref={canvasRef}
-                style={{ maxWidth: '100%', maxHeight: 500, borderRadius: 8 }}
-              />
-            </div>
-            <div className="p-4 border-t border-border space-y-3">
-              <input
-                type="text"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                placeholder="Titulo del meme para publicar..."
-                className="w-full px-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
-              />
-              {/* Tags */}
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-mono">#</span>
-                <input
-                  type="text"
-                  value={tagsInput}
-                  onChange={e => setTagsInput(e.target.value)}
-                  placeholder="meme, viral, lunes..."
-                  className="w-full pl-7 pr-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors font-mono"
-                />
-              </div>
-              {tagsInput && (
-                <div className="flex flex-wrap gap-1.5">
-                  {tagsInput.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
-                    <span key={tag} className="text-[11px] px-2 py-0.5 bg-accent/10 border border-accent/30 text-accent rounded-full font-mono">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleDownload}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm font-bold text-muted hover:text-white transition-colors"
-                >
-                  <Download size={15} /> Descargar
-                </button>
-                <button
-                  onClick={handlePublish}
-                  disabled={publishing}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-accent hover:bg-red-500 text-white rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
-                >
-                  <Send size={15} /> {publishing ? 'Publicando...' : 'Publicar en el feed'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   )
