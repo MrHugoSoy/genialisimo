@@ -46,7 +46,7 @@ export function useAuth() {
     return supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: 'https://www.genialisimo.com/auth/callback',
         queryParams: {
           prompt: 'select_account',
         },
