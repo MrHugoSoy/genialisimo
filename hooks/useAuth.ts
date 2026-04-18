@@ -25,7 +25,15 @@ export function useAuth() {
   }, [])
 
   async function fetchProfile(id: string) {
-    const { data } = await supabase.from('profiles').select('*').eq('id', id).single()
+    const { data } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle()
+    if (!data || !data.username) {
+      setProfile(null)
+      setLoading(false)
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/onboarding')) {
+        window.location.href = '/onboarding'
+      }
+      return
+    }
     setProfile(data)
     setLoading(false)
   }
