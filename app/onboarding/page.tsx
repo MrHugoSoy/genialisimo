@@ -23,7 +23,6 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.replace('/'); return }
 
-      // Si ya tiene username, no necesita onboarding
       const { data: profile } = await supabase
         .from('profiles')
         .select('username')
@@ -48,7 +47,6 @@ export default function OnboardingPage() {
 
     setLoading(true)
 
-    // Verificar que el username no esté tomado
     const { data: existing } = await supabase
       .from('profiles')
       .select('id')
@@ -61,7 +59,6 @@ export default function OnboardingPage() {
       return
     }
 
-    // Upsert del perfil (puede existir sin username si el trigger corrió con NULL)
     const { error } = await supabase
       .from('profiles')
       .upsert({
@@ -79,7 +76,7 @@ export default function OnboardingPage() {
     }
 
     toast('🎉', '¡Bienvenido a Genialisimo!')
-    router.replace('/')
+    window.location.href = '/'
   }
 
   if (checking) {
@@ -94,7 +91,6 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-bg">
       <div className="w-full max-w-md bg-surface border border-border rounded-2xl p-7 animate-popIn">
 
-        {/* Header */}
         <div className="text-center mb-6">
           <p className="text-4xl mb-3">👋</p>
           <h1 className="font-bebas text-3xl tracking-widest text-white">
@@ -105,7 +101,6 @@ export default function OnboardingPage() {
           </p>
         </div>
 
-        {/* Username */}
         <div className="mb-5">
           <label className="text-[10px] font-mono uppercase tracking-widest text-muted block mb-2">
             Nombre de usuario
@@ -126,7 +121,6 @@ export default function OnboardingPage() {
           </p>
         </div>
 
-        {/* Avatar picker */}
         <div className="mb-5">
           <label className="text-[10px] font-mono uppercase tracking-widest text-muted block mb-2">
             Tu avatar
@@ -149,7 +143,6 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* Banner picker */}
         <div className="mb-7">
           <label className="text-[10px] font-mono uppercase tracking-widest text-muted block mb-2">
             Color de perfil
@@ -169,7 +162,6 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* Preview */}
         <div
           className="rounded-xl p-4 mb-6 flex items-center gap-3"
           style={{ background: selectedBanner }}
@@ -185,7 +177,6 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* Submit */}
         <button
           onClick={handleSubmit}
           disabled={loading || username.length < 3}
