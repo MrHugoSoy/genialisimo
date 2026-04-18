@@ -11,7 +11,20 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createServerSupabaseClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) return NextResponse.redirect(`${origin}${next}`)
+    if (!error) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', user.id)
+          .single()
+        if (!profile || !profile.username) {
+          return NextResponse.redirect(`${origin}/onboarding`)
+        }
+      }
+      return NextResponse.redirect(`${origin}${next}`)
+    }
   }
 
   if (token_hash && type) {
