@@ -38,7 +38,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
   const supabase = await createServerSupabaseClient()
   const { data: post } = await supabase
     .from('posts')
-    .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
+    .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji, avatar_url)')
     .eq('id', id)
     .single()
 

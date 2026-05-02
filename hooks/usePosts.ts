@@ -81,7 +81,7 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
 
       const { data, error } = await supabase
         .from('posts')
-        .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
+        .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji, avatar_url)')
         .in('user_id', followingIds)
         .order('created_at', { ascending: false })
         .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1)
@@ -98,7 +98,7 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
 
     let query = supabase
       .from('posts')
-      .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
+      .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji, avatar_url)')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1)
 
     if (category) query = query.eq('category', category)
@@ -203,7 +203,7 @@ export function usePosts(feedType: FeedType = 'hot', category?: Category, tag?: 
     const { data, error } = await supabaseClient
       .from('posts')
       .insert({ title, category, image_url, video_url, user_id: user.id, tags })
-      .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
+      .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji, avatar_url)')
       .single()
 
     if (error) {

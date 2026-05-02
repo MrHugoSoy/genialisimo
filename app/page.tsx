@@ -11,7 +11,7 @@ export default async function Home() {
   const supabase = await createServerSupabaseClient()
   const { data: initialPosts } = await supabase
     .from('posts')
-    .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
+    .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji, avatar_url)')
     .order('created_at', { ascending: false })
     .range(0, 9)
 

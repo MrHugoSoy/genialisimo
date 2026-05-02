@@ -45,7 +45,7 @@ export function SearchPage() {
     const [postsRes, usersRes] = await Promise.all([
       supabase
         .from('posts')
-        .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
+        .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji, avatar_url)')
         .ilike('title', `%${q}%`)
         .order('votes', { ascending: false })
         .limit(20),
