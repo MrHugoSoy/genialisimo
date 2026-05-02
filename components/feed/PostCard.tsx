@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/Toaster'
 import { createClient } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { usePosts } from '@/hooks/usePosts'
+import { Avatar } from '@/components/ui/Avatar'
 import clsx from 'clsx'
 
 interface PostCardProps {
@@ -180,8 +181,12 @@ export function PostCard({ post, onVote, onAuthRequired, onDelete, delay = 0 }: 
     >
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-2">
-        <div className="w-9 h-9 rounded-full bg-surface2 border-2 border-border flex items-center justify-center text-lg shrink-0">
-          {post.profiles?.avatar_emoji ?? '😂'}
+        <div className="w-9 h-9 rounded-full bg-surface2 border-2 border-border flex items-center justify-center shrink-0 overflow-hidden">
+          <Avatar
+            avatarUrl={(post.profiles as any)?.avatar_url}
+            avatarEmoji={post.profiles?.avatar_emoji ?? '😂'}
+            size={36}
+          />
         </div>
         <div className="flex-1 min-w-0">
           <p

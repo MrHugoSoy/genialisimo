@@ -9,13 +9,11 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const supabase = await createServerSupabaseClient()
-  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
   const { data: initialPosts } = await supabase
     .from('posts')
     .select('*, profiles!posts_user_id_fkey(id, username, avatar_emoji)')
-    .gte('created_at', yesterday)
-    .order('votes', { ascending: false })
+    .order('created_at', { ascending: false })
     .range(0, 9)
 
-  return <FeedPage feedType="hot" initialPosts={initialPosts ?? []} />
+  return <FeedPage feedType="fresh" initialPosts={initialPosts ?? []} />
 }

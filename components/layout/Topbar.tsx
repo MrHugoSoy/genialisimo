@@ -9,9 +9,9 @@ import { AuthModal } from '@/components/auth/AuthModal'
 import clsx from 'clsx'
 
 const NAV = [
-  { label: 'Hot',     href: '/',         icon: Flame },
+  { label: 'Fresh',   href: '/',         icon: Sparkles },
+  { label: 'Hot',     href: '/hot',      icon: Flame },
   { label: 'Trend',   href: '/trending', icon: TrendingUp },
-  { label: 'Fresh',   href: '/fresh',    icon: Sparkles },
   { label: 'Top',     href: '/top',      icon: Crown },
 ]
 
@@ -112,7 +112,7 @@ export function Topbar() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2"><a href=""></a>
           {user ? (
             <>
               <UserMenu />

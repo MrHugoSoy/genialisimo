@@ -10,9 +10,9 @@ export function MobileNav() {
   const { user } = useAuthContext()
 
   const NAV = [
-    { label: 'Hot',       href: '/',          icon: Flame },
+    { label: 'Fresh',     href: '/',          icon: Sparkles },
+    { label: 'Hot',       href: '/hot',       icon: Flame },
     { label: 'Trend',     href: '/trending',  icon: TrendingUp },
-    { label: 'Fresh',     href: '/fresh',     icon: Sparkles },
     { label: 'Top',       href: '/top',       icon: Crown },
     ...(user ? [
       { label: 'Siguiendo', href: '/following', icon: Users },

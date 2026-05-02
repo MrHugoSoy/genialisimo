@@ -5,6 +5,7 @@ import { Comment } from '@/types'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { useToast } from '@/components/ui/Toaster'
 import { SendHorizonal, ThumbsUp, CornerDownRight, ChevronDown, ChevronUp } from 'lucide-react'
+import { Avatar } from '@/components/ui/Avatar'
 
 interface CommentSectionProps {
   postId: number
@@ -38,8 +39,12 @@ function CommentItem({ comment, onReply, onLike, depth = 0 }: CommentItemProps) 
   return (
     <div className={depth > 0 ? 'ml-8 border-l border-border pl-3' : ''}>
       <div className="flex gap-3 py-2.5">
-        <div className="w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center text-sm shrink-0">
-          {comment.profiles?.avatar_emoji ?? '😐'}
+        <div className="w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center shrink-0 overflow-hidden">
+          <Avatar
+            avatarUrl={(comment.profiles as any)?.avatar_url}
+            avatarEmoji={comment.profiles?.avatar_emoji ?? '😐'}
+            size={32}
+          />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
@@ -105,7 +110,7 @@ export function CommentSection({ postId, onAuthRequired }: CommentSectionProps) 
     const supabase = createClient()
     const { data } = await supabase
       .from('comments')
-      .select('*, profiles!comments_user_id_fkey(id, username, avatar_emoji)')
+      .select('*, profiles!comments_user_id_fkey(id, username, avatar_emoji, avatar_url)')
       .eq('post_id', postId)
       .order('created_at', { ascending: false })
 
@@ -160,7 +165,7 @@ export function CommentSection({ postId, onAuthRequired }: CommentSectionProps) 
         content: text.trim(),
         parent_id: replyTo?.id ?? null,
       })
-      .select('*, profiles!comments_user_id_fkey(id, username, avatar_emoji)')
+      .select('*, profiles!comments_user_id_fkey(id, username, avatar_emoji, avatar_url)')
       .single()
 
     if (!error && data) {
@@ -184,8 +189,12 @@ export function CommentSection({ postId, onAuthRequired }: CommentSectionProps) 
     <div className="border-t border-border px-4 py-4 space-y-3">
       {/* Input */}
       <div className="flex gap-3 items-start">
-        <div className="w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center text-sm shrink-0 mt-1">
-          {profile?.avatar_emoji ?? '🫠'}
+        <div className="w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center shrink-0 mt-1 overflow-hidden">
+          <Avatar
+            avatarUrl={(profile as any)?.avatar_url}
+            avatarEmoji={profile?.avatar_emoji ?? '🫠'}
+            size={32}
+          />
         </div>
         <div className="flex-1 space-y-2">
           {replyTo && (

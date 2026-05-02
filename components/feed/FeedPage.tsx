@@ -100,7 +100,7 @@ export function FeedPage({ feedType, initialPosts = [] }: { feedType: FeedType, 
 
         <div className="flex-1 min-w-0">
           {/* Banner de bienvenida — solo para usuarios no logueados */}
-          {!user && feedType === 'hot' && (
+          {!user && feedType === 'fresh' && (
             <WelcomeBanner onRegister={openRegister} />
           )}
 
