@@ -42,7 +42,7 @@ type Tab = 'reports' | 'usernames'
 
 export function AdminClient({ reports: initialReports }: { reports: Report[] }) {
   const [tab, setTab] = useState<Tab>('reports')
-  const [reports, setReports] = useState<Report[]>([])
+  const [reports, setReports] = useState<Report[]>(initialReports)
   const [loading, setLoading] = useState(true)
   const [reserved, setReserved] = useState<ReservedUsername[]>([])
   const [loadingReserved, setLoadingReserved] = useState(false)
@@ -130,7 +130,7 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
     const { error } = await supabase.from('reports').delete().eq('post_id', postId)
     if (error) { toast('❌', 'Sin permisos para descartar: ' + error.message); return }
     setReports(prev => prev.filter(r => r.post_id !== postId))
-    toast('✅', 'Reportes descartados')
+    toast('✅', 'Reporte descartado — post conservado')
   }
 
   const grouped = reports.reduce((acc, r) => {
