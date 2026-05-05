@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/Toaster'
 import { createClient } from '@/lib/supabase'
 import { Upload, Download, Send } from 'lucide-react'
 import { HexColorPicker } from 'react-colorful'
+import { CATEGORIES, Category } from '@/types'
 
 const TEMPLATES = ['😂', '🤔', '😤', '💀', '🗿', '😭', '🤡', '👀', '🙏', '😈']
 const FONTS = ['Impact', 'Arial Black', 'Comic Sans MS', 'Arial']
@@ -67,6 +68,7 @@ export function MemeGenerator() {
   const [publishing, setPublishing] = useState(false)
   const [title, setTitle] = useState('')
   const [tagsInput, setTagsInput] = useState('meme,genialisimo')
+  const [category, setCategory] = useState<Category>('memes')
 
   const getDimensions = () => {
     switch (aspect) {
@@ -168,7 +170,7 @@ export function MemeGenerator() {
       const tags = tagsInput.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
       const { error } = await supabase.from('posts').insert({
         title: title.trim(),
-        category: 'memes',
+        category,
         image_url,
         user_id: user.id,
         tags,
@@ -208,6 +210,21 @@ export function MemeGenerator() {
                 placeholder="Titulo del meme para publicar..."
                 className="w-full px-4 py-2.5 bg-surface2 border border-border rounded-lg text-sm outline-none focus:border-accent transition-colors"
               />
+              <div>
+                <label className="text-[11px] text-muted font-mono mb-1.5 block">Categoría</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {(Object.entries(CATEGORIES) as [Category, any][]).map(([key, cat]) => (
+                    <button
+                      key={key}
+                      onClick={() => setCategory(key)}
+                      className={`text-[11px] px-2.5 py-1 rounded-full border font-mono transition-all ${category === key ? 'text-white' : 'text-muted border-border hover:border-white/30'}`}
+                      style={category === key ? { background: cat.color, borderColor: cat.color } : {}}
+                    >
+                      {cat.emoji} {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div>
   <label className="text-[11px] text-muted font-mono mb-1.5 block">
     Tags — separa cada palabra con una coma

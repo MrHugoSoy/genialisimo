@@ -1,7 +1,7 @@
 export type Category =
   | 'memes' | 'gaming' | 'animals' | 'tech'
   | 'sports' | 'fails' | 'relatable' | 'movies' | 'youtube'
-  | 'anime' | 'music' | 'food'
+  | 'anime' | 'music' | 'food' | 'fanart'
 
 export interface Profile {
   id: string
@@ -55,6 +55,7 @@ export const CATEGORIES: Record<Category, { label: string; emoji: string; color:
   anime:     { label: 'Anime',     emoji: '⚔️', color: '#e879f9' },
   music:     { label: 'Música',    emoji: '🎵', color: '#06b6d4' },
   food:      { label: 'Comida',    emoji: '🌮', color: '#f97316' },
+  fanart:    { label: 'Fanart',    emoji: '🎨', color: '#a855f7' },
 }
 
 export const AVATARS = ['🗿','😈','🤡','👾','🦊','🐸','🤖','💀','🧠','👽','🐙','🦁']
