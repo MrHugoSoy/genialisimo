@@ -117,15 +117,18 @@ export function AdminClient({ reports: initialReports }: { reports: Report[] }) 
   async function handleDeletePost(postId: number) {
     if (!confirm('Borrar este post permanentemente?')) return
     const supabase = createClient()
-    await supabase.from('posts').delete().eq('id', postId)
-    await supabase.from('reports').delete().eq('post_id', postId)
+    const { error: postError } = await supabase.from('posts').delete().eq('id', postId)
+    if (postError) { toast('❌', 'Sin permisos para borrar el post: ' + postError.message); return }
+    const { error: reportError } = await supabase.from('reports').delete().eq('post_id', postId)
+    if (reportError) { toast('❌', 'Sin permisos para borrar los reportes: ' + reportError.message); return }
     setReports(prev => prev.filter(r => r.post_id !== postId))
     toast('🗑️', 'Post borrado')
   }
 
   async function handleDismiss(postId: number) {
     const supabase = createClient()
-    await supabase.from('reports').delete().eq('post_id', postId)
+    const { error } = await supabase.from('reports').delete().eq('post_id', postId)
+    if (error) { toast('❌', 'Sin permisos para descartar: ' + error.message); return }
     setReports(prev => prev.filter(r => r.post_id !== postId))
     toast('✅', 'Reportes descartados')
   }
